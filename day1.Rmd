@@ -26,7 +26,7 @@ type(today)
 print(today)
 ```
 
-```{r}
+```{r rch1}
 library(lubridate)
 # Get today's date together with the time component - in lubridate use now()
 today_r = now()
@@ -34,21 +34,21 @@ class(today_r)
 today_r
 ```
 
-```{python}
+```{python ch2}
 # Okay, what if we want only the date part of today? Use today()
 todaydate = date.today()
 type(todaydate)
 todaydate
 ```
 
-```{r}
+```{r rch2}
 # Okay, what if we want only the date part of today? What d'ya know in lubridate it is the same! today()
 todaydate_r = today()
 class(todaydate_r)
 todaydate_r
 ```
 
-```{python}
+```{python ch3}
 # Can drill into a date even more
 print(todaydate.month)
 print(todaydate.day)
@@ -66,7 +66,7 @@ start = date(2019, 12, 20)
 print(start + timedelta(100))
 ```
 
-```{r}
+```{r rch3}
 # Can drill into a date even more but in R month, day, year are functions not attributes
 print(month(todaydate_r))
 print(day(todaydate_r))
@@ -80,7 +80,7 @@ start = ymd(20191220)
 print(start + 100)
 ```
 
-```{python}
+```{python ch4}
 # time delta is the gap between 2 times
 t = timedelta(days = 4, hours = 10)
 type(t)
@@ -92,7 +92,7 @@ print(today + eta)
 str(today + eta)
 ```
 
-```{r}
+```{r rch4}
 # time delta is the gap between 2 times
 # We can create such a timedelta in R using days, months, years - notice the plural of each of these
 t = days(4) + hours(10)
