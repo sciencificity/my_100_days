@@ -1,0 +1,103 @@
+---
+title: "Day1"
+author: "Vebash Naidoo"
+date: "12/20/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# library to use Python in RStudio
+library(reticulate)
+```
+
+## Day 1
+
+```{python ch1}
+# import the relevant functions
+from datetime import datetime
+from datetime import date
+from datetime import timedelta
+# Get today's date together with the time component as we're using today()
+today = datetime.today()
+type(today)
+print(today)
+```
+
+```{r}
+library(lubridate)
+# Get today's date together with the time component - in lubridate use now()
+today_r = now()
+class(today_r)
+today_r
+```
+
+```{python}
+# Okay, what if we want only the date part of today? Use today()
+todaydate = date.today()
+type(todaydate)
+todaydate
+```
+
+```{r}
+# Okay, what if we want only the date part of today? What d'ya know in lubridate it is the same! today()
+todaydate_r = today()
+class(todaydate_r)
+todaydate_r
+```
+
+```{python}
+# Can drill into a date even more
+print(todaydate.month)
+print(todaydate.day)
+print(todaydate.year)
+
+# Define a new date - christmas
+christmas = date(2019, 12, 25)
+print(christmas)
+# So how many days until Christmas?
+print(christmas - todaydate)
+
+# Define my 100 day start
+start = date(2019, 12, 20)
+# So I will finish by ....
+print(start + timedelta(100))
+```
+
+```{r}
+# Can drill into a date even more but in R month, day, year are functions not attributes
+print(month(todaydate_r))
+print(day(todaydate_r))
+print(year(todaydate_r))
+
+# Define a new date in R using the ymd() function
+christmas_r = lubridate::ymd(20191225)
+print(christmas_r)
+print(christmas_r - todaydate_r)
+start = ymd(20191220)
+print(start + 100)
+```
+
+```{python}
+# time delta is the gap between 2 times
+t = timedelta(days = 4, hours = 10)
+type(t)
+print(t.days)
+print(t.seconds)
+print(t.seconds / 60 / 60)
+eta = timedelta(hours = 6)
+print(today + eta)
+str(today + eta)
+```
+
+```{r}
+# time delta is the gap between 2 times
+# We can create such a timedelta in R using days, months, years - notice the plural of each of these
+t = days(4) + hours(10)
+class(t)
+eta = hours(6)
+print(today_r + eta)
+```
+
