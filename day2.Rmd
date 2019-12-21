@@ -1,0 +1,380 @@
+---
+title: "Day2"
+author: "Vebash Naidoo"
+date: "2019-12-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# library to use Python in RStudio
+library(reticulate)
+```
+
+## Day 2
+### Part 1
+
+This Bite involves solving two problems using datetime:
+
+1. We kicked off our 100 Days of Code project on March 30th, 2017. Calculate what date we finished the full 100 days!
+2. PyBites was founded on the 19th of December 2016. We're attending our first PyCon together on May 8th, 2018. Can you calculate how many days from PyBites' inception to our first PyCon meet up?
+
+```{python ch1}
+from datetime import date, timedelta
+
+start_100days = date(2017, 3, 30)
+pybites_founded = date(2016, 12, 19)
+pycon_date = date(2018, 5, 8)
+
+
+def get_hundred_days_end_date():
+    """Return a string of yyyy-mm-dd"""
+    return (start_100days + timedelta(100)).isoformat()
+
+
+def get_days_between_pb_start_first_joint_pycon():
+    """Return the int number of days"""
+    return (pycon_date - pybites_founded).days
+    
+get_hundred_days_end_date()
+get_days_between_pb_start_first_joint_pycon()
+```
+
+```{python ch2}
+def test_get_hundred_days_end_date():
+    assert get_hundred_days_end_date() == '2017-07-08'
+
+
+def test_get_days_till_pycon_meetup():
+    assert get_days_between_pb_start_first_joint_pycon() == 505
+    
+test_get_hundred_days_end_date()
+test_get_days_till_pycon_meetup()
+```
+
+```{r rch1}
+library(lubridate)
+
+start_100days = ymd(20170330)
+pybites_founded = ymd(20161219)
+pycon_date = ymd(20180508)
+
+
+get_hundred_days_end_date <- function() {
+    "Return a string of yyyy-mm-dd"
+    return (start_100days + days(100))
+}
+
+get_days_between_pb_start_first_joint_pycon <- function(){
+    "Return the int number of days"
+    return (pycon_date - pybites_founded)
+}
+
+get_hundred_days_end_date()
+
+get_days_between_pb_start_first_joint_pycon()
+```
+
+```{r rch2}
+library(testit)
+
+test_get_hundred_days_end_date <- function(){
+    assert('The 100 day end date', {get_hundred_days_end_date() == '2017-07-08'})
+}
+
+
+test_get_days_till_pycon_meetup <- function(){
+    assert('Days between', {get_days_between_pb_start_first_joint_pycon() == 505})
+}
+
+test_get_hundred_days_end_date()
+test_get_days_till_pycon_meetup()
+
+```
+
+### Part 2
+#### Bite 128. Work with datetime's strptime and strftime
+In this Bite you get some more practice with datetime's useful strptime and stftime.
+
+Complete the two functions: years_ago and convert_eu_to_us_date following the instructions in their docstrings.
+
+This is the defintion and difference between the two:
+
+strptime: parse (convert) string to datetime object.
+strftime: create formatted string for given time/date/datetime object according to specified format.
+
+```{python ch3}
+from datetime import datetime
+
+THIS_YEAR = 2018
+
+
+def years_ago(date):
+    """Receives a date string of 'DD MMM, YYYY', for example: 8 Aug, 2015
+       Convert this date str to a datetime object (use strptime).
+       Then extract the year from the obtained datetime object and subtract
+       it from the THIS_YEAR constant above, returning the int difference.
+       So in this example you would get: 2018 - 2015 = 3"""
+    datetimeObj = datetime.strptime(date, '%d %b, %Y')
+    return THIS_YEAR - datetimeObj.year
+
+
+def convert_eu_to_us_date(date):
+    """Receives a date string in European format of dd/mm/yyyy, e.g. 11/03/2002
+       Convert it to an American date: mm/dd/yyyy (in this case 03/11/2002).
+       To enforce the use of datetime's strptime / strftime (over slicing)
+       the tests check if a ValueError is raised for invalid day/month/year
+       ranges (no need to code this, datetime does this out of the box)"""
+    datetimeObj = datetime.strptime(date, '%d/%m/%Y')
+    return datetimeObj.strftime('%m/%d/%Y')    
+```
+
+```{python ch4}
+import pytest
+
+def test_years_ago():
+    assert years_ago('8 Aug, 2015') == 3
+    assert years_ago('6 Sep, 2014') == 4
+    assert years_ago('1 Oct, 2010') == 8
+    assert years_ago('31 Dec, 1958') == 60
+
+
+def test_years_ago_wrong_input():
+    with pytest.raises(ValueError):
+        # Sept != valid %b value 'Sep'
+        assert years_ago('6 Sept, 2014') == 4
+
+
+def test_convert_eu_to_us_date():
+    assert convert_eu_to_us_date('11/03/2002') == '03/11/2002'
+    assert convert_eu_to_us_date('18/04/2008') == '04/18/2008'
+    assert convert_eu_to_us_date('12/12/2014') == '12/12/2014'
+    assert convert_eu_to_us_date('1/3/2004') == '03/01/2004'
+
+
+def test_convert_eu_to_us_date_invalid_day():
+    with pytest.raises(ValueError):
+        convert_eu_to_us_date('41/03/2002')
+
+
+def test_convert_eu_to_us_date_invalid_month():
+    with pytest.raises(ValueError):
+        convert_eu_to_us_date('11/13/2002')
+
+
+def test_convert_eu_to_us_date_invalid_year():
+    with pytest.raises(ValueError):
+        convert_eu_to_us_date('11/13/year')
+```
+
+```{r rch3}
+THIS_YEAR = 2018
+
+
+years_ago <- function(date){
+    "Receives a date string of 'DD MMM, YYYY', for example: 8 Aug, 2015
+       Convert this date str to a datetime object (use strptime).
+       Then extract the year from the obtained datetime object and subtract
+       it from the THIS_YEAR constant above, returning the int difference.
+       So in this example you would get: 2018 - 2015 = 3"
+    datetimeObj = dmy(date)
+    return (THIS_YEAR - year(datetimeObj))
+}
+
+
+convert_eu_to_us_date <- function(date){
+    "Receives a date string in European format of dd/mm/yyyy, e.g. 11/03/2002
+       Convert it to an American date: mm/dd/yyyy (in this case 03/11/2002).
+       To enforce the use of datetime's strptime / strftime (over slicing)
+       the tests check if a ValueError is raised for invalid day/month/year
+       ranges (no need to code this, datetime does this out of the box)"
+    datetimeObj = strptime(date, format = '%d/%m/%Y')
+    return(strftime(datetimeObj, format = '%m/%d/%Y'))
+}
+
+convert_eu_to_us_date('11/03/2002')
+convert_eu_to_us_date('18/04/2008')
+convert_eu_to_us_date('12/12/2014')
+convert_eu_to_us_date('1/3/2004')
+
+years_ago('8 Aug, 2015')
+years_ago('31 Dec, 1958')
+```
+
+```{r rch4}
+
+test_years_ago <- function(){
+    assert('test1', {
+        years_ago('8 Aug, 2015') == 3
+        years_ago('6 Sep, 2014') == 4
+        years_ago('1 Oct, 2010') == 8
+        years_ago('31 Dec, 1958') == 60
+    })
+}
+
+
+test_years_ago_wrong_input <- function(){
+        # Sept != valid %b value 'Sep'
+        assert('test2', {years_ago('6 Sep, 2014') == 4})
+}
+
+test_convert_eu_to_us_date <- function(){
+    assert('test3', {
+        convert_eu_to_us_date('11/03/2002') == '03/11/2002'
+        convert_eu_to_us_date('18/04/2008') == '04/18/2008'
+        convert_eu_to_us_date('12/12/2014') == '12/12/2014'
+        convert_eu_to_us_date('1/3/2004') == '03/01/2004'
+    })
+}
+
+test_years_ago()
+test_years_ago_wrong_input()
+test_convert_eu_to_us_date()
+
+```
+
+
+### Part 3
+#### Bite 7. Parsing dates from logs
+In this bite we will look at [this small server log](https://bites-data.s3.us-east-2.amazonaws.com/messages.log) finding the first and last system shutdown events:
+
+INFO 2014-07-03T23:27:51 supybot Shutdown initiated.
+...
+INFO 2014-07-03T23:31:22 supybot Shutdown initiated.
+You need to calculate the time between these two events. First extract the timestamps from the log entries and convert them to datetime objects. Then use datetime.timedelta to calculate the time difference between them.
+
+You can assume the logs are sorted in ascending order. Check out the docstrings and the TESTS for more info.
+
+```{python ch5}
+from datetime import datetime
+import os
+import urllib.request
+import re
+
+SHUTDOWN_EVENT = 'Shutdown initiated'
+
+# prep: read in the logfile
+tmp = os.getenv("TMP", "/tmp")
+logfile = os.path.join(tmp, 'log')
+urllib.request.urlretrieve(
+    'https://bites-data.s3.us-east-2.amazonaws.com/messages.log',
+    logfile
+)
+
+with open(logfile) as f:
+    loglines = f.readlines()
+
+loglines[0]
+    
+# for you to code:
+
+def convert_to_datetime(line):
+    """TODO 1:
+       Extract timestamp from logline and convert it to a datetime object.
+       For example calling the function with:
+       INFO 2014-07-03T23:27:51 supybot Shutdown complete.
+       returns:
+       datetime(2014, 7, 3, 23, 27, 51)
+    """
+    import re
+    x = re.search('(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})', line).group(0)
+    return datetime.strptime(x,'%Y-%m-%dT%H:%M:%S')
+
+
+def time_between_shutdowns(loglines):
+    """TODO 2:
+       Extract shutdown events ("Shutdown initiated") from loglines and
+       calculate the timedelta between the first and last one.
+       Return this datetime.timedelta object.
+    """
+    import re
+    x = [line for line in loglines if re.search(pattern = SHUTDOWN_EVENT, string = line)]
+    first = x[0]
+    last = x[-1]
+    first_dt = convert_to_datetime(first)
+    last_dt = convert_to_datetime(last)
+    return(last_dt - first_dt)
+
+time_between_shutdowns(loglines)
+
+line1 = 'ERROR 2014-07-03T23:24:31 supybot Invalid user dictionary file'
+line2 = 'INFO 2015-10-03T10:12:51 supybot Shutdown initiated.'
+line3 = 'INFO 2016-09-03T02:11:22 supybot Shutdown complete.'
+convert_to_datetime(line1)
+
+x = [line for line in loglines if re.search(pattern = SHUTDOWN_EVENT, string = line)]
+x
+```
+
+```{python ch6}
+from datetime import datetime, timedelta
+
+def test_convert_to_datetime():
+    line1 = 'ERROR 2014-07-03T23:24:31 supybot Invalid user dictionary file'
+    line2 = 'INFO 2015-10-03T10:12:51 supybot Shutdown initiated.'
+    line3 = 'INFO 2016-09-03T02:11:22 supybot Shutdown complete.'
+    assert convert_to_datetime(line1) == datetime(2014, 7, 3, 23, 24, 31)
+    assert convert_to_datetime(line2) == datetime(2015, 10, 3, 10, 12, 51)
+    assert convert_to_datetime(line3) == datetime(2016, 9, 3, 2, 11, 22)
+
+
+def test_time_between_events():
+    diff = time_between_shutdowns(loglines)
+    assert type(diff) == timedelta
+    assert str(diff) == '0:03:31'
+
+test_convert_to_datetime()
+test_time_between_events()
+```
+
+#### Pybites solution is much cleaner than mine!
+```{python ch5solution}
+from datetime import datetime
+import os
+import urllib.request
+
+SHUTDOWN_EVENT = 'Shutdown initiated'
+
+# prep: read in the logfile
+tmp = os.getenv("TMP", "/tmp")
+logfile = os.path.join(tmp, 'log')
+urllib.request.urlretrieve(
+    'https://bites-data.s3.us-east-2.amazonaws.com/messages.log',
+    logfile
+)
+
+with open(logfile) as f:
+    loglines = f.readlines()
+
+
+# for you to code:
+
+def convert_to_datetime(line):
+    """TODO 1:
+       Extract timestamp from logline and convert it to a datetime object.
+       For example calling the function with:
+       INFO 2014-07-03T23:27:51 supybot Shutdown complete.
+       returns:
+       datetime(2014, 7, 3, 23, 27, 51)
+    """
+    timestamp = line.split()[1]
+    date_str = '%Y-%m-%dT%H:%M:%S'
+    return datetime.strptime(timestamp, date_str)
+
+
+def time_between_shutdowns(loglines):
+    """TODO 2:
+       Extract shutdown events ("Shutdown initiated") from loglines and
+       calculate the timedelta between the first and last one.
+       Return this datetime.timedelta object.
+    """
+    shutdown_entries = [line for line in loglines if SHUTDOWN_EVENT in line]
+    shutdown_times = [convert_to_datetime(event) for event in shutdown_entries]
+    return max(shutdown_times) - min(shutdown_times)
+    
+time_between_shutdowns(loglines)    
+
+```
+
+
+
