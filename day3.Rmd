@@ -1,0 +1,109 @@
+---
+title: "Day 3"
+author: "Vebash Naidoo"
+date: "2019-12-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+```
+
+## Day 3
+### Pomodoro?
+What's a Pomodoro Timer? We're glad you asked! (If you didn't ask, you can read anyway!)
+
+A Pomodoro Timer is a countdown timer that enables you to focus on a given task. You set the timer for a specific duration, 20 minutes for example, and for that duration you are completely offline and focused. No email, no phone, no texts, no kids (a man can dream!)... no interruptions. Just pure, focus. This is the Pomodoro Technique.
+
+At the end of the timer, you're back online.
+
+The idea is that the minutes of focus time allow you to achieve more than you otherwise would given the usual swathe of interruptions we all suffer.
+
+The real fanatics will do a set period of the Pomodoro Technique followed by a short break, then another Pomodoro set and repeat.
+
+```{python}
+import time
+import os
+import winsound
+
+# The print for the timer was not showing on the screen
+# I need to print unbuffered - this code from SO: https://stackoverflow.com/questions/107705/disable-output-buffering
+class Unbuffered(object):
+   def __init__(self, stream):
+       self.stream = stream
+   def write(self, data):
+       self.stream.write(data)
+       self.stream.flush()
+   def writelines(self, datas):
+       self.stream.writelines(datas)
+       self.stream.flush()
+   def __getattr__(self, attr):
+       return getattr(self.stream, attr)
+
+import sys
+sys.stdout = Unbuffered(sys.stdout)
+
+def main_timer(minutes):
+    seconds = minutes * 60
+    while seconds:
+        os.system("cls")
+        mins = int(seconds / 60)
+        secs = round((seconds % 60), 0)
+        print(f'{mins:02.0f}:{secs:02.0f}')
+        time.sleep(1)
+        seconds -= 1
+    
+    # One last time print for the timer to go to 00:00!
+    os.system("cls")
+    mins = int(seconds / 60)
+    secs = round((seconds % 60), 0)
+    print(f'{mins:02.0f}:{secs:02.0f}')
+    
+    # Sound a beep
+    duration = 1000  # milliseconds
+    freq = 440  # Hz
+    winsound.Beep(freq, duration)
+    print('You completed a stint!\n\n')
+
+# Countdown 20 min - change to 20
+main_timer(1)
+```
+
+### The R version
+This is totally cribbed from a SO post!
+```{r}
+library(tcltk2)
+library(beepr)
+
+timer_r <- function(minutes) {
+    pb <- tkProgressBar("Timer")
+    start = Sys.time()
+    seconds = minutes * 60
+    while(TRUE) {
+      elapsed = as.numeric(difftime(Sys.time(), start, units = 'secs'))
+      remaining = seconds - elapsed
+      Sys.sleep(0.1)
+      setTkProgressBar(pb, remaining/seconds, label = sprintf("Time remaining: %i seconds", round(remaining)))
+      if (remaining <= 0) break
+    }
+    beep(sound = 8)
+    Sys.sleep(5)
+    close(pb)
+}
+
+# Countdown 20 min - change to 20
+timer_r(1)
+
+```
+
+
+### The Challenge
+Now for the challenge:
+
+At its simplest, create a timer for a set duration (eg 20 minutes) that "alarms" or notifies you at completion.
+
+Go a step further and allow the user to specify the amount of time the Pomodoro Timer goes for.
+
+Again, further develop the app by allowing it to loop. That is, Pomodoro Time > break time > Pomodoro Time > break time. Just like the pros!
+
