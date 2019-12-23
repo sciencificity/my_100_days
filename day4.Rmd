@@ -48,3 +48,84 @@ ascii_hist(data)
 
 ```
 
+## Named Tuple
+```{python ch2}
+from collections import defaultdict, namedtuple, Counter, deque
+import csv
+import random
+from urllib.request import urlretrieve
+
+# tuple
+user = ('bob', 'coder')
+print(f'{user[0]} is a {user[1]}')
+
+# now a named tuple - 1st arg = name of namedtuple; 2nd arg = attributes of the namedtuple
+User = namedtuple('User', 'name role')
+
+user = User(name = 'bob', role = 'coder')
+print(user.name)
+print(user.role)
+
+```
+
+## Default Dict
+```{python ch3}
+challenge_done =[('mike', 10), ('julian', 7), ('bob', 5),
+                 ('mike', 11), ('julian', 8), ('bob', 6)]
+challenge_done
+
+# Error = KeyError:
+# challenges = {}
+# for name, challenge in challenge_done:
+#     challenges[name].append(challenge)
+
+challenges = defaultdict(list)
+for name, challenge in challenge_done:
+    challenges[name].append(challenge)
+
+challenges    
+```
+
+## Counter
+
+```{python ch4}
+words = """Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum""".split()
+
+words[:5]
+
+# Count number of words in a text
+Counter(words).most_common(5)
+
+
+```
+
+## deque
+
+Pronounced 'deck' and short for double-ended queue.
+
+```{python ch5}
+import timeit # investigate how to use in a script (not cell magic in jupyter)
+import random
+from datetime import datetime
+
+lst = list(range(10000000))
+deq = deque(range(10000000))
+
+def insert_and_delete(ds):
+    for _ in range(10):
+        index = random.choice(range(100))
+        ds.remove(index)
+        ds.insert(index, index )
+        
+startTime = datetime.now()        
+insert_and_delete(lst)
+print(datetime.now() - startTime)
+
+startTime2 = datetime.now()
+insert_and_delete(deq) 
+print(datetime.now() - startTime2)
+
+#%timeit %run insert_and_delete(deq)
+
+```
+
