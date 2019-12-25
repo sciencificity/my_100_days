@@ -1,0 +1,235 @@
+---
+title: "Day 5"
+author: "Vebash Naidoo"
+date: "12/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+```
+
+## Day 5
+
+### Bite 30. Movie data analysis
+In this Bite we are going to parse a csv movie dataset to identify the directors with the highest rated movies.
+
+1. Write get_movies_by_director: use csv.DictReader to convert movie_metadata.csv into a (default)dict of lists of Movie namedtuples. Convert/filter the data:
+Only extract director_name, movie_title, title_year and imdb_score.
+Type conversions: title_year -> int / imdb_score -> float
+__Discard any movies older than 1960.__
+Here is an extract:
+
+
+    >     { 'Woody Allen': [
+    >         Movie(title='Midnight in Paris', year=2011, score=7.7),
+    >         Movie(title='The Curse of the Jade Scorpion', year=2001, score=6.8),
+    >         Movie(title='To Rome with Love', year=2012, score=6.3),  ....
+    >         ], ...
+    >     }
+
+2. Write the calc_mean_score helper that takes a list of Movie namedtuples and calculates the mean IMDb score, returning the score rounded to 1 decimal place.
+3. Complete get_average_scores which takes the directors data structure returned by get_movies_by_director (see 1.) and returns a list of tuples (director, average_score) ordered by highest score in descending order. Only take directors into account with >= MIN_MOVIES
+
+
+```{python mysol}
+import csv
+from collections import defaultdict, namedtuple
+import os
+from urllib.request import urlretrieve
+
+BASE_URL = 'https://bites-data.s3.us-east-2.amazonaws.com/'
+TMP = ''
+
+fname = 'movie_metadata.csv'
+remote = os.path.join(BASE_URL, fname)
+local = os.path.join(TMP, fname)
+urlretrieve(remote, local)
+
+MOVIE_DATA = local
+MIN_MOVIES = 4
+MIN_YEAR = 1960
+
+Movie = namedtuple('Movie', 'movie_title title_year imdb_score')
+
+def get_movies_by_director():
+    """Extracts all movies from csv and stores them in a dict,
+    where keys are directors, and values are a list of movies,
+    use the defined Movie namedtuple"""
+    directors = defaultdict(list)
+
+    with open(MOVIE_DATA, encoding="utf8") as f:
+        for line in csv.DictReader(f):
+            try:
+                director = line['director_name']
+                movie_title = line['movie_title'].replace('xa0', '')
+                title_year = int(line['title_year'])
+                imdb_score = float(line['imdb_score'])
+            except ValueError:
+                continue
+            m = Movie(movie_title=movie_title, title_year = title_year, imdb_score = imdb_score)
+            directors[director].append(m)
+    return directors
+
+
+def calc_mean_score(movies):
+    """Helper method to calculate mean of list of Movie namedtuples,
+       round the mean to 1 decimal place"""
+    scores = [float(movie.imdb_score) for movie in movies]
+    return round(sum(scores)/len(scores),1)
+
+
+def get_average_scores(directors):
+    """Iterate through the directors dict (returned by get_movies_by_director),
+       return a list of tuples (director, average_score) ordered by highest
+       score in descending order. Only take directors into account
+       with >= MIN_MOVIES"""
+    # directors_dict = {}
+    # #directors = get_movies_by_director()
+    # for director, movies in directors.items():
+    #     if len(movies) >= MIN_MOVIES:
+    #         directors_dict[(director, calc_mean_score(movies))] = movies
+    # return directors_dict
+    ret = {director: calc_mean_score(movies) for director, movies in directors.items() if len(movies) >= MIN_MOVIES}
+    return sorted(ret.items(), key=lambda m: m[1], reverse=True)
+
+
+director_movies = get_movies_by_director()
+scores = get_average_scores(director_movies)
+directors = {score[0] for score in scores[2:13]}
+print(scores[0])    
+print(scores[0] == ('Sergio Leone', 8.5))
+print( 'Quentin Tarantino' in directors )
+print( 'Hayao Miyazaki' in directors )
+print( 'Frank Darabont' in directors )
+print( 'Stanley Kubrick' in directors )
+print( 'James Cameron' in directors )
+print( 'Joss Whedon' in directors )
+print( 'Alejandro G. Iñárritu' in directors )
+
+```
+
+
+```{python tests}
+
+director_movies = get_movies_by_director()
+
+
+def test_get_movies_by_director():
+    assert 'Sergio Leone' in director_movies
+    assert len(director_movies['Sergio Leone']) == 4
+    assert len(director_movies['Peter Jackson']) == 12
+
+
+def test_director_movies_data_structure():
+    assert type(director_movies) in (dict, defaultdict)
+    assert type(director_movies['Peter Jackson']) == list
+    assert type(director_movies['Peter Jackson'][0]) == Movie
+
+
+def test_calc_mean_score():
+    movies_sergio = director_movies['Sergio Leone']
+    movies_nolan = director_movies['Christopher Nolan']
+    assert calc_mean_score(movies_sergio) == 8.5
+    assert calc_mean_score(movies_nolan) == 8.4
+
+
+def test_get_average_scores():
+    # top 2
+    scores = get_average_scores(director_movies)
+
+    assert scores[0] == ('Sergio Leone', 8.5)
+    assert scores[1] == ('Christopher Nolan', 8.4)
+
+    # order / score might slightly change depending the way the mean
+    # is calculated so only test director names in top scores
+    directors = {score[0] for score in scores[2:13]}
+
+    assert 'Quentin Tarantino' in directors
+    assert 'Hayao Miyazaki' in directors
+    assert 'Frank Darabont' in directors
+    assert 'Stanley Kubrick' in directors
+    assert 'James Cameron' in directors
+    assert 'Joss Whedon' in directors
+    assert 'Alejandro G. Iñárritu' in directors
+
+test_get_movies_by_director()
+test_director_movies_data_structure()
+test_calc_mean_score()
+test_get_average_scores()
+
+```
+
+
+```{python pybite_sol}
+import csv
+from collections import defaultdict, namedtuple
+import os
+from urllib.request import urlretrieve
+
+BASE_URL = 'https://bites-data.s3.us-east-2.amazonaws.com/'
+# My tmp is empty
+TMP = ''
+
+fname = 'movie_metadata.csv'
+remote = os.path.join(BASE_URL, fname)
+local = os.path.join(TMP, fname)
+urlretrieve(remote, local)
+
+MOVIE_DATA = local
+MIN_MOVIES = 4
+MIN_YEAR = 1960
+
+# Create a named tuple
+Movie = namedtuple('Movie', 'title year score')
+
+
+def get_movies_by_director():
+    """Extracts all movies from csv and stores them in a dict,
+    where keys are directors, and values are a list of movies,
+    use the defined Movie namedtuple"""
+    directors = defaultdict(list)
+    # I kept getting an error despite the .replace for movie_title
+    # Error was: unicodedecodeerror 'charmap' codec can't decode byte 0x81
+    # Soln at this SO post: 
+    # https://stackoverflow.com/questions/9233027/unicodedecodeerror-charmap-codec-cant-decode-byte-x-in-position-y-character
+    with open(MOVIE_DATA, encoding="utf8") as f:
+        for line in csv.DictReader(f):
+            try:
+                director = line['director_name']
+                movie = line['movie_title'].replace('\xa0', '')
+                year = int(line['title_year'])
+                score = float(line['imdb_score'])
+            except ValueError:
+                continue
+            # We only want those > 1960, so we ignore the ones < 1960
+            # some years are null though so we need to add the if year
+            if ((year < MIN_YEAR) & (year)):
+                continue
+
+            m = Movie(title=movie, year=year, score=score)
+            directors[director].append(m)
+
+    return directors
+
+
+def calc_mean_score(movies):
+    """Helper method to calculate mean of list of Movie namedtuples,
+       round the mean to 1 decimal place"""
+    ratings = [m.score for m in movies]
+    mean = sum(ratings) / max(1, len(ratings))
+    return round(mean, 1)
+
+
+def get_average_scores(directors):
+    """Iterate through the directors dict (returned by get_movies_by_director),
+       return a list of tuples (director, average_score) ordered by highest
+       score in descending order. Only take directors into account
+       with >= MIN_MOVIES"""
+    ret = {director: calc_mean_score(movies)
+           for director, movies in directors.items()
+           if len(movies) >= MIN_MOVIES}
+    return sorted(ret.items(), key=lambda x: x[1], reverse=True)
+
+```
