@@ -1,0 +1,157 @@
+---
+title: "Day 7"
+author: "Vebash Naidoo"
+date: "2019/12/26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lists
+
+```{python ch1}
+numlist = [1,2,3,4,5]
+numlist
+
+# reverse a list
+numlist.reverse()
+numlist
+
+# sort a list
+numlist.sort()
+numlist
+
+for num in numlist:
+    print(str(num))
+
+# Can convert a string into a list
+mystring = 'vebash naidoo'
+mystring
+l = list(mystring)
+l
+l[4]
+# returns the last letter from the list, and removes it from the list
+l.pop()
+
+# we can insert it back in
+l.insert(len(l), 'o')
+l
+
+l[0] = 'k'
+l
+
+# del is delete and just deletes the item without returning the item
+del l[0]
+
+l.insert(0, 'v')
+l
+
+# can pop item at a certain index
+l.pop(0)
+l
+
+# append adds at the last position
+l.append('s')
+l
+```
+
+Mutability: Object that can be changed (e.g. lists as above)
+Immutability: Object that cannot be changed (e.g. tuples)
+
+```{python ch2}
+
+l = list(mystring)
+t = tuple(mystring)
+
+l[0] = 't'
+
+# TypeError: 'tuple' object does not support item assignment
+# t[0] = 't'
+
+# We can talk to a tuple i.e. we can read it, but we cannot edit it
+t[0]
+
+```
+
+## Dictionaries
+Unordered.
+
+```{python ch3}
+
+pybites = {'julian': 30, 'bob': 33, 'mike': 33}
+pybites
+
+people = {}
+# Adding to an empty dictionary
+people['julian'] = 30
+people['bob'] = 103
+people
+
+# To interact with a dictionary
+pybites.keys()
+pybites.values()
+# To see each pair of items
+pybites.items()
+
+for keys in pybites.keys():
+    print(keys)
+    
+for key, value in pybites.items():
+    print(f'{key}: {value}')
+
+```
+
+## Truthiness
+False is a boolean value and is false, but there are other data types which are also seen as False - e.g. 0 and 0.0.
+
+```{python ch4}
+
+# Let's try the `is` function - notice it is not correct as 0 and 0.0 are False
+# This points to us using == rather as below!
+print(False is False)
+print([] is False)
+print({} is False)
+print("" is False)
+print(0 is False)
+print(0.0 is False)
+print(None is False)
+
+print(False == False)
+print([] == False)
+print({} == False)
+print("" == False)
+print(0 == False)
+print(0.0 == False)
+print(None == False)
+
+```
+
+## Lambdas
+
+```{python ch5}
+# This function is written to be reused depending on what is significant for you
+# E.g. maybe you want to find all even numbers in a list or all odd numbers or all prime numbers
+def find_sig_nums(nums, predicate):
+    for n in nums:
+        if predicate(n):
+            yield n
+
+# Here we have a list of the first few fibonacci numbers            
+numbers = [1,1,2,3,5,8,13,21,34]  
+
+# Maybe we want all the odd fibonacci numbers
+sig = find_sig_nums(numbers, lambda x: x % 2 == 1)
+for val in sig:
+    print(val)
+
+
+# Maybe we want all the even fibonacci numbers
+sig1 = find_sig_nums(numbers, lambda x: x % 2 == 0)
+for val in sig1:
+    print(val)
+
+```
+
+
