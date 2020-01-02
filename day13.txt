@@ -1,0 +1,7 @@
+Tried installing opencv (Open Source Computer Vision Library) and struggled on anaconda
+
+Fix used by jborelli who is a classmate in the 'Intro to DL with Pytorch' course:
+-> Activate the main environment on anaconda console:
+activate base
+-> install with pip (at the base environment it will download the correct version)
+pip install opencv-contrib-python
