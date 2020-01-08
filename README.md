@@ -70,3 +70,12 @@ When we do the same for a sample of the population then we term it a `statistic`
 Here's how to get a sample of a panda's dataframe:
 
 > sample = df.sample(30, random_state = 1) # set random_state for reproducibility.
+
+### Day 18
+Learnt how to emulate a switch statement in Python using a dictionary.
+
+### Day 19
+
+- Finised Lesson 6 of the 'Intro to DL with Pytorch' course of Udacity
+- Completed a tutorial on Deep Neural Networks with Pytorch - separated a data cluster (through classification) where the outer circle contained 0's and the inner circle contained 1's using neural network.
+

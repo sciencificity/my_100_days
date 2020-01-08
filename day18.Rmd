@@ -1,0 +1,99 @@
+---
+title: "Day 18"
+author: "Data Analytics"
+date: "2020-01-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Emulating switch/case Statements in Python
+#### Tutorial By @RealPython
+Python doesn’t have switch/case statements so it’s often necessary to write long if/elif/else chains as a workaround. Here’s a little trick you can use to emulate switch/case statements in Python using dictionaries and first-class functions.
+
+Basically we’re using Python dictionaries as a lookup table to replace a nested “if elif else” statement with a cleaner and more maintainable implementation.
+
+In some cases this can be faster than if-then-else chains and easier to maintain, too.
+
+Say that we want to call a function handle_a() if some condition is met, else we want to call handle_b() else we want the default handle.
+
+> if cond == 'cond_a':<br>
+>       handle_a() <br>
+> elif cond == 'cond_b': <br>
+>       handle_b() <br>
+> else: <br>
+>       handle_default() <br>
+
+    
+### Functions are First-Class Citizens in Python
+Functions in Python are first class objects, which means you can pass them to other functions as arguments, return them from other functions as values, and store them in variables and data structures. 
+
+You’ll see how to assign a function to a list data structure. This flexible feature in Python will allow you to emulate switch case. 
+```{python}
+# We can define a function
+def myfunc(a, b):
+    return a + b
+
+# Then we can store that function in a list
+funcs = [myfunc]
+# Then we can refer to that function and call it with args!
+# This is essentially saying go get me the list_item[0] -> returns the function
+# Then I just pass the function its args to call ths function
+funcs[0](2,3)
+
+```
+
+We use a dictionary to map conditions to handler functions. Here’s a code snippet from the lesson that shows how to create a dictionary mapping as well as how to call a function based on a condition:
+```{python, eval = FALSE}
+func_dict = {
+    'cond_a': handle_a,
+    'cond_b': handle_b,
+}
+# We can access the dictionary py passing in the appropriate condition - cond_a, or cond_b
+# We then call the function using the () after the []
+# Downside = KeyError
+func_dict[pass_condition_in]()
+
+# A way around that is to use the get() function of the dictionary with a default if Key not found
+func_dict.get(cond, handle_default)()
+```
+
+Notice that dictionaries are generally faster than using if statements because of the way they look up keys instead of an if statement which tries each if variant to ascertain if true / false. For a small number of functions it won't make a big difference but for longer if/elif/else workflows consider a dictionary.
+
+```{python}
+def dispatch_if(operator, x, y):
+    if operator == 'add':
+        return x + y
+    elif operator == 'sub':
+        return x - y
+    elif operator == 'mul':
+        return x * y
+    elif operator == 'div':
+        return x / y
+    # Implicitly if none of these match Python returns a None
+dispatch_if('mul', 2, 3)
+```
+
+```{python}
+
+# The function dispatch_dict creates a dictionary with handler functions using
+# some lambdas - since these are simple functions we don't need to define
+# add, sub, mul, and div as 4 different functions. We doing it inline.
+# Since it returns a dictionary we use it with the get() function of dictionaries
+# where the default if no Key is found is None
+def dispatch_dict(operator, x, y):
+    return {
+        'add': lambda: x + y,
+        'sub': lambda: x - y,
+        'mul': lambda: x * y,
+        'div': lambda: x / y,
+    }.get(operator, lambda: None)()
+
+dispatch_dict('mul', 2, 3)
+```
+ 
+The one big downside is that we're creating a dictionary and a bunch of functions whenever the dict function is called which is not good for memory and performance reasons. 
+
+One way around this downside is to take the dictionary and store it somewhere else (in some variable) and then refer to it when using it in the function above.
