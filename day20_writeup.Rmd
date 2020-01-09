@@ -1,0 +1,98 @@
+---
+title: "Day 20"
+author: "Vebash Naidoo"
+date: "2020-01-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Using Pylint
+Pylint is a linter for Python code.
+
+### Installation:
+
+> pip install pylint
+
+### Usage:
+In anaconda terminal on Windows machine:
+
+> pylint filepath\filename.py
+
+### What does it do?
+
+It checks your code against the style guide PEP8 as well as looks for any obvious bugs in your code, and it informs you about all the things it sees are "wrong" in your code. It isn't magic though, so if I write bad code in general which is formatted fine or bug free it ain't gonna tell me about it! <br> <br>
+
+#### My bad code:
+```{python eval = FALSE}
+# Here is my badly formatted code
+class car:
+    def __init__(self,color):
+        self.color = color
+
+my_car = car('blue')
+
+def    crash(car1, car2) :
+    car1.color = 'burnt'
+
+crash(car('red'), my_car)
+```
+
+Upon calling pylint filename.py at the terminal prompt we get this feedback:
+
+<img src = pylint_1.png>
+
+It tells you which line number and where on the line it is seeing an issue, and overall you get a score for your code (negative values mean your code is bad, the more negative it is, the worse your code, 10.00 means your code is perfect). <br> <br>
+
+### Steps to take:
+
+1. Try and correct whatever it finds which are errors, and where the formatting is indeed poor.
+2. If you added code deliberately, e.g. you added a variable but have not yet defined it's use, pylint will call that out along the lines of 'unused argument' - to get pylint to ignore parts of the code which you deliberately added you use a *pylint: disable = * comment line with the message you wish to ignore. <br>
+
+    > '# pylint: disable = name_of_message_from_pylint'
+
+    **`name_of_message_from_pylint`** is the message you got from pylint usually in brackets at the end (); examples from this one are `(trailing-whitespace)`, `(trailing-newlines)`, `(too-few-public-methods)` etc.<br>
+    
+3. Run pylint again after corrections made and check that your overall score is within a threshold you're comfortable with. <br> <br>
+
+For me, I fixed a few, ran the linter, and rinsed and repeated as you can see ;).
+
+<img src = pylint_2.png> <br> <br>
+
+#### My amended code
+
+**Note :** Some parts are guided to be ignored by pylint.
+
+```{python, eval = FALSE}
+# 19:0: C0103: Class name "car" doesn't conform to PascalCase naming style (invalid-name)
+#     Expecting capital letter as first letter - we have a small letter, so amend that
+# 21:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+#     Add a pylint ignore here
+# pylint: disable = too-few-public-methods
+class Car:
+    """Example class""" # C0111: Missing function docstring (missing-docstring)
+    # 20:21: C0326: Exactly one space required after comma
+    def __init__(self, color): # add space after ,
+        self.color = color
+
+# 28:0: C0103: Constant name "my_car" doesn't conform to UPPER_CASE naming style (invalid-name)
+# Fix: Change from my_car to MY_CAR
+MY_CAR = Car('blue')        
+
+# 26:25: C0326: No space allowed before : Fix = remove space before  :
+# 30:19: W0613: Unused argument 'car2' (unused-argument) - special command:
+#   Ask pylint to ignore that specific error
+def crash(car1, car2): #pylint: disable = unused-argument
+    """An example fn""" # 31:0: C0111: Missing function docstring (missing-docstring)
+    car1.color = 'burnt'
+
+crash(Car('red'), MY_CAR)
+
+```
+
+##### The result is a PERFECT 10 / 10!! ;)
+
+<img src = pylint_3.png>
+
