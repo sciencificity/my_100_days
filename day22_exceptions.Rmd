@@ -1,0 +1,75 @@
+---
+title: "Day 22"
+author: "Vebash Naidoo"
+date: "2020-01-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Python KeyError Exceptions and How to Handle Them
+
+KeyError is an exception raised when you try and access a key that isn't in a dictionary data structure. It is a type of LookupError exception and basically says there was an error retrieving the key you were looking for, i.e. 'Hey, I can't find that key = xxx that you're searching for'. <br>
+
+```{python, eval = FALSE}
+ages = {'Jim': 30, 'Pam': 28, 'Kevin': 33}
+print(ages['Michael'])
+```
+
+<img src = 'keyerr1.png'> <br> <br>
+
+
+```{python, eval = FALSE}
+ages = {'Jim': 30, 'Pam': 28, 'Kevin': 33}
+person = input('Get age for: ')
+print(f'{person} is {ages[person]} years old.')
+```
+
+<img src = 'keyerr2.png'> <br> <br>
+
+Most of the time, a Python KeyError is raised because a key is not found in a dictionary or a dictionary subclass, such as os.environ. There are also some rare cases in which you might see it raised in Python's standard library, such as the zipfile module if an item isn't found in a zip archive.
+
+```{python, eval = FALSE}
+from zipfile import ZipFile
+zip_file = ZipFile('./images.zip')
+zip_file.getinfo('this is not real')
+```
+
+<img src = 'keyerr3.png'> <br>
+<img src = 'keyerr4.png'> <br>
+
+<br><br>
+
+### Raise a KeyError
+There may be times when you need to raise a Key error. <br>
+
+```{python}
+ages = {'Jim': 30, 'Pam': 28, 'Kevin': 33}
+person = 'Michael'
+age = ages.get(person) # returns None if Key not found
+if age: 
+    print(f'{person} is {age} years old.')
+else:
+    print(f"{person}'s age is unknown.")
+```
+<br> <br>
+
+### Try Except
+
+```{python}
+from zipfile import ZipFile
+zip_file = ZipFile('./images.zip')
+try:
+    zip_file.getinfo('something')
+except:
+    print('Can not find "something"')
+```
+
+<br> <br>
+
+Now, the next time we have a KeyError raised, we will know that it is probably just a bad dictionary key lookup. We will also be able to find all the information we need to determine where the error is coming from by looking at the last few lines of the traceback.
+
+If the problem is a dictionary key lookup in your own code, then you can switch from accessing the key directly on the dictionary to using the safer .get() method with a default return value. If the problem isn't coming from your own code, then using the try except block is your best bet for controlling your code's flow.
+

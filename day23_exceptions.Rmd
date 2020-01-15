@@ -1,0 +1,242 @@
+---
+title: "Day 23"
+author: "Vebash Naidoo"
+date: "2020-01-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Python Exceptions
+Exceptions are not syntax errors, but rather code with correct syntax, that raises an error.
+
+### Syntax error
+```{python, eval = FALSE}
+# This has a syntax error - notice the extra bracket at the end?
+print(0/0))
+```
+<img src = 'exception2.png'> <br> <br>
+
+### Exception
+```{python, eval = FALSE}
+# This raises an exception - division by 0
+print(0/0)
+```
+
+<img src = 'exception1.png'> <br> <br>
+
+### Raising an Exception <br>
+
+#### No exception
+x is 5 so no exception is raised.
+```{python}
+x = 5
+if x > 5:
+    raise Exception
+print('Made it to the end')    
+```
+<br> <br>
+#### Exception
+A plain vanilla `Exception` was raised since x is now above 5.
+```{python, eval = FALSE}
+x = 10
+if x > 5:
+    raise Exception
+print('Made it to the end')    
+```
+
+<img src = 'exception3.png'>
+<br> <br>
+
+#### Exception - with descriptive message
+```{python, eval = FALSE}
+x = 10
+if x > 5:
+    raise Exception(f'x needs to be 5 or under, here it is {x}')
+print('Made it to the end')    
+```
+
+<img src = 'exception4.png'>
+
+<br> <br>
+
+### Using Assertions
+
+Assertions follow this general pattern:
+
+> assert (condition), "Optional message if condition not met"
+
+assert checks if the condition in the brackets is met, if it is not an AssertionError is raised and the program is stopped.
+
+<br> <br>
+
+#### No assertion error
+Name is quaid so no assertion error raised.
+```{python}
+name = 'quaid'
+assert(name == 'quaid')
+print(f'My name is {name} and no assertion error occurred!')
+```
+<br> <br>
+
+#### AssertionError
+
+Okay now we changed the name to be something else, so an Assertion error will be raised.
+```{python, eval = FALSE}
+name = 'horton'
+assert(name == 'quaid')
+print(f'My name is {name} and this line is never run as an assertion error occurred!')
+```
+
+<img src = 'exception5.png'>
+
+<br> <br>
+
+#### AssertionError with Descriptive Message
+Just like with exceptions we can add some text message that is displayed along with the AssertionError message.
+```{python, eval = FALSE}
+name = 'horton'
+assert(name == 'quaid'), f'Expected name is "quaid" we got "{name}" instead'
+```
+
+<img src = 'exception6.png'>
+<br> <br>
+
+### `Try` and `Except`
+
+This follows the blueprint of:
+
+> try: <br>
+         code to try running <br>
+> except: <br>
+        execute this part if an exception is raised <br>
+
+<br> <br>     
+
+#### No Exception
+Normal running snippet.
+```{python}
+# , eval = FALSE}
+x = 1
+answer = 1/x
+print(f'The answer is {answer}')
+```
+<br> <br>
+
+#### Exception 
+##### Division by Zero
+Now `x = 0` so we get an exception raised but we cater for such an occurrence explicitly.
+
+```{python}
+x = 0
+try:
+    answer = 1/x
+except ZeroDivisionError:
+    answer = 'undefined'
+print(f'The answer is {answer}')
+```
+<br> <br>
+
+##### String value division     
+```{python, eval = FALSE}
+x = 'undefined'
+try:
+    answer = 1/x
+except ZeroDivisionError:
+    answer = 'undefined'
+print(f'The answer is {answer}')
+```        
+
+<img src = 'exception7.png'>
+<br> <br>
+Now we handle the error specifically.
+```{python}
+x = 'undefined'
+try:
+    answer = 1/x
+except ZeroDivisionError:
+    answer = 'undefined'
+except TypeError:
+    answer = 'meaningless'
+print(f'The answer is {answer}')
+```   
+<br> <br>
+
+#### `Else` Clause
+The else clause only runs if no exceptions occurred. <br>
+
+
+> try: <br>
+         code to try running <br>
+> except: <br>
+        execute this part if an exception is raised <br>
+> else: 
+        execute this code if no exceptions
+
+<br> <br>  
+
+```{python}
+x = 2
+try:
+    answer = 1/x
+except ZeroDivisionError:
+    answer = 'undefined'
+except TypeError:
+    answer = 'meaningless'
+else:
+    print('Thanks for putting in a number')
+print(f'The answer is {answer}')
+```
+<br> <br>
+
+#### Finally Clause
+
+`finally` clauses get run whether there were exceptions or not, making them useful for tidying up when programs fail unexpectedly. <br>
+
+> try: <br>
+         code to try running <br>
+> except: <br>
+        execute this part if an exception is raised <br>
+> else: <br>
+        execute this code if no exceptions <br>
+> finally: <br>
+        this code is always run <br>
+
+We're going to simulate opening a file .... <br>
+
+The only exception being handled is a divide by 0. The x here is a string so a TypeError will be raised. We opened the file, and then had an exception raised so the file was never closed which is bad practise.
+<br> <br>
+
+```{python, eval = FALSE}
+x = '2'
+print('Simulate opening a file')
+try:
+    answer = 1/x
+except ZeroDivisionError:
+    answer = 'undefined'
+else:
+    print('Thanks for putting in a number')
+print(f'The answer is {answer}')
+print('Simulate closing a file')
+```
+<img src = 'exception8.png'>
+<br> <br>
+
+That's where `finally` comes in. Here the file will be closed.
+```{python, eval = FALSE}
+x = '2'
+print('Simulate opening a file')
+try:
+    answer = 1/x
+except ZeroDivisionError:
+    answer = 'undefined'
+else:
+    print('Thanks for putting in a number')
+finally: 
+    print('Simulate closing a file')
+print(f'The answer is {answer}')
+```
+
+<img src = 'exception9.png'>

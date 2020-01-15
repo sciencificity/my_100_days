@@ -88,3 +88,23 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 ### Day 21 <2020-01-09>
 - Trained an MNIST image classifier using NN
 
+### Day 22 <2020-01-10>
+- Learnt more about the KeyError exception.
+
+### Day 23 <2020-01-11>
+- Learnt about Python Exceptions and how to handle them:
+
+    * `assert`
+    * Try / Except 
+    * Try / Except / Else where `else` code is executed should no exception occur
+    * Try / Except / Else / Finally where `finally` code is run regardless of whether an exception occurred or not. Used for cleaning up - e.g. closing a file which was opened earlier.
+
+
+### Day 24 <2020-01-12>
+- Finished NB0 of Georgia Tech GTx: CSE6040x SP20: Computing for Data Analysis course.
+- To upload only when assign is passed deadline since it contains answers.
+
+### Day 25 <2020-01-13>
+- Finished Lesson 7 together with a Style Transfer nb of own picture and art.
+
+
