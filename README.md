@@ -107,4 +107,10 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 ### Day 25 <2020-01-13>
 - Finished Lesson 7 together with a Style Transfer nb of own picture and art.
 
+### Day 26 <2020-01-14> and 27 <2020-01-15> 
+- Learnt to use pytest
 
+    * For example learnt how to mock values using `from unittest.mock import patch` and `@patch.object(random, 'randint')`
+    * Learnt how to simulate the input() call to get the user input using side_effects which can be a list of values.
+    * Learnt about `capfd` a feature of pytest - which captures the standard output of the program and execution.
+    * Learnt about pytest's parametrize feature where we can give it a list of tuples of argument and expected return values in a decorator. In the function we can just call the func with arg and test it against return

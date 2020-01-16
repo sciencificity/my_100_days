@@ -1,0 +1,299 @@
+---
+title: "Day26 and Day27"
+author: "Data Analytics"
+date: "2020-01-14 - 2020-01-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Testing
+
+1. Every test should test 1 small thing, and be independent (`setUp()` and `tearDown()` help with this).
+2. Each test should run fast because your goal is to run them often.
+3. Testing should be automated, again due to running them often.
+
+<br> 
+
+### First function we will test
+```{python, eval = FALSE}
+import random
+
+MAX_GUESSES = 5
+START, END = 1, 20
+
+def get_random_number():
+    """Get a random number between START and END, returns int"""
+    return random.randint(START, END)
+    
+class Game:
+    """Number guess class, make it callable to initiate game"""
+    
+    def __init__(self):
+        """Init _guesses, _answer, _win to set(), get_random_number(), False"""
+        self._guesses = set()
+        self._answer = get_random_number()
+        self._win = False
+        
+    def guess(self):
+        """Ask user for input, convert to int, raise ValueError outputting the ffg errors:
+          'Please enter a number'
+          'Should be a number'
+          'Number not in range'
+          'Already guessed'
+        If all good, return the int"""
+        guess = input(f'Guess a number between {START} and {END}: ')
+        if not guess:
+            raise ValueError('Please enter a number.')
+            
+        try:
+            guess = int(guess)
+        except ValueError:
+            raise ValueError('Should be a number.')
+        
+        if guess not in range(START, END+1):
+            raise ValueError('Number not in range.')
+        
+        if guess in self._guesses:
+            raise ValueError('Already guessed.')
+        
+        self._guesses.add(guess)
+        
+        return guess
+    
+    def _validate_guess(self, guess):
+        """Verify if guess is correct, print the ffg when applicable:
+           {guess} is correct!
+           {guess} is too low
+           {guess} is too high
+           Return a boolean"""
+        if guess == self._answer:
+            print(f'{guess} is correct!')
+            return True
+        else:
+            high_or_low = 'low' if guess < self._answer else 'high'
+            print(f'{guess} is too {high_or_low}')
+            return False
+            
+    @property
+    
+    def num_guesses(self):
+        return len(self._guesses)
+        
+    def __call__(self):
+        """Entry point / game loop, use a loop break / continue, see the tests
+        for the exact win / lose messaging"""
+        while len(self._guesses) < MAX_GUESSES:
+            try:
+                guess = self.guess()
+            except ValueError as ve:
+                print(ve)
+                continue
+            win = self._validate_guess(guess)
+            
+            if win:
+                guess_str = self.num_guesses == 1 and "guess" or "guesses"
+                print(f'It took you {self.num_guesses} {guess_str}')
+                self._win = True
+                break
+        else:
+        # else on while/for = anti-pattern? do find it useful in this case!
+        # if the while loop exits without breaking we know that you have guessed the max number of times
+        # 
+        print(f'Guessed {MAX_GUESSES} times, answer was {self._answer}')
+        
+    if __name__ == '__main__':
+        game = Game()
+        game()
+```
+
+### Testing code for first function
+<br>
+
+```{python, eval = FALSE}
+from day26_27_guess import get_random_number, Game
+from unittest.mock import patch
+import random
+import pytest
+
+# We are going to mock an object since our function get_random_number 
+# uses a random integer but random returns something randomly 
+# So how do we test if the random is giving us a diff integer each time?
+# The idea is to mock an object!
+# use @patch.object -> it is the random module -> and it is the randint method we want to patch
+@patch.object(random, 'randint')
+# Now in the test method we pass in an argument and we give that argument a fixed return value
+# This is key - instead of having random return something new each time, we can give it a fixed value
+# So it's an override of what randint does -> it says everytime randint is called return 17
+def test_get_random_number(m):
+    m.return_value = 17
+    assert get_random_number() == 17
+
+# Here we simulate the input() call to get the user input.
+# The side_effects can be a list of values, and we will try and run through to get all the different errors
+# as though the user entered those values
+@patch("builtins.input", side_effect=[11, '12', 'Bob', 12, 5,
+                                      -1, 21, 7, None])
+def test_guess(inp):
+    game = Game()
+    # good
+    assert game.guess() == 11
+    assert game.guess() == 12
+    # not a number
+    with pytest.raises(ValueError):
+        game.guess()
+    # already guessed 12
+    with pytest.raises(ValueError):
+        game.guess()
+    # good
+    assert game.guess() == 5
+    # out of range values
+    with pytest.raises(ValueError):
+        game.guess()
+    with pytest.raises(ValueError):
+        game.guess()
+    # good
+    assert game.guess() == 7
+    # user hit enter - we can't test assert game.guess() == None - it does not work, throws a ValueError so
+    # use this code instead
+    with pytest.raises(ValueError):
+        game.guess()
+
+# capfd is a feature of pytest - which captures the standard output of the program and execution
+# The reason we use this is that for the validate_guess_method we want to check the boolean return 
+# and the actual output ... {guess} is too high, too low etc. because this is a game
+# and we want to test that the output we give the user is accurate too
+def test_validate_guess(capfd):
+    game = Game()
+    # Set answer of game to 2
+    game._answer = 2
+
+    # Check that 1 is not the answer of the Game using `assert not` this time
+    assert not game._validate_guess(1)
+    # To see what is being printed to the console we use the capfd 
+    # We re-direct the standard output, and throw away the error
+    # Call the readouterr() func of capfd
+    out, _ = capfd.readouterr()
+    # We can just see what that gives us by using print statements
+    # When calling pytest use pytest -s filename.py
+    # print(out)
+    # Now we can assert on that just as we do any other variables and functions
+    # We use the rstrip() to strip of the new line at the right (we saw this in the print)
+    assert out.rstrip() == '1 is too low'
+
+    assert not game._validate_guess(3)
+    out, _ = capfd.readouterr()
+    assert out.rstrip() == '3 is too high'
+
+    assert game._validate_guess(2)
+    out, _ = capfd.readouterr()
+    assert out.rstrip() == '2 is correct!'
+
+## Run a game end to end - win scenario
+# We again use the mock by simulating a user inputting values
+@patch("builtins.input", side_effect=[4, 22, 9, 4, 6])
+def test_game_win(inp, capfd):
+    game = Game()
+    game._answer = 6
+
+    game()
+    assert game._win is True
+
+    # Here we use 0 indexing so that we can do away with the out, _
+    out = capfd.readouterr()[0]
+    expected = ['4 is too low', 'Number not in range',
+                '9 is too high', 'Already guessed',
+                '6 is correct!', 'It took you 3 guesses']
+
+    output = [line.strip() for line
+              in out.split('\n') if line.strip()]
+    # Look over expected and output lists in parallel and see if they match
+    for line, exp in zip(output, expected):
+        assert line == exp
+
+## Run a game end to end - lose scenario
+@patch("builtins.input", side_effect=[None, 5, 9, 14, 11, 12])
+def test_game_lose(inp, capfd):
+    game = Game()
+    game._answer = 13
+
+    game()
+    assert game._win is False
+
+
+```
+
+To test run `pytest filename.py` in Terminal. <br> <br>
+
+> $ pytest day26_27_test_guess.py 
+
+<br>
+
+### Second function
+There is a paradigm called `Test Driven Development (TDD)` which is basically that you write your code before writing your function.
+```{python, eval = FALSE}
+def fizzbuzz(n):
+    if n % 3 == 0 and n % 5 == 0:
+        return 'Fizz Buzz'
+    if n % 3 == 0:
+        return 'Fizz'
+    if n % 5 == 0:
+        return 'Buzz'
+    return n
+```
+
+### Test code for 2nd Function
+
+pytest has this nice parametrize feature where we can give it a list of tuples of argument and expected return values in a decorator. In the function we can just call the func with arg and test it against return. <br> <br>
+
+```{python, eval = FALSE}
+from day26_27_fizzbuzz import fizzbuzz
+import pytest
+
+def test_fizzbuzz_initial():
+    assert fizzbuzz(1) == 1
+    assert fizzbuzz(2) == 2
+    assert fizzbuzz(3) == 'Fizz'
+    assert fizzbuzz(5) == 'Buzz'
+    # we can see this is getting very repetitive
+
+# pytest has this nice parametrize feature where we can give it a list of tuples
+# of argument and expected return values in a decorator
+# In the function we can just call the func with arg and test it against return
+@pytest.mark.parametrize("arg, ret",[
+    (1, 1),
+    (2, 2),
+    (3, 'Fizz'),
+    (4, 4),
+    (5, 'Buzz'),
+    (6, 'Fizz'),
+    (7, 7),
+    (8, 8),
+    (9, 'Fizz'),
+    (10, 'Buzz'),
+    (11, 11),
+    (12, 'Fizz'),
+    (13, 13),
+    (14, 14),
+    (15, 'Fizz Buzz'),
+    (16, 16),
+])
+def test_fizzbuzz(arg, ret):
+    assert fizzbuzz(arg) == ret
+
+```
+
+pytest gives a nice green dot for every test that passes and a red F for every test that fails. <br> <br>
+
+<img src = pytest_1.png> <br> <br>
+
+<img src = pytest_2.png> <br> <br>
+
+<img src = pytest_3.png> <br> <br>
+
+<img src = pytest_4.png> <br>
+
+
+
