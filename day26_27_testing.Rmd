@@ -295,5 +295,13 @@ pytest gives a nice green dot for every test that passes and a red F for every t
 
 <img src = pytest_4.png> <br>
 
+##### Test coverage: <br>
 
+**Does not really work....** <br>
+> pytest --cov-report term-missing --cov='.'
+
+<img src = pytest_5.png> <br>
+
+**Does work:** <br>
+<img src = pytest_8.png> <br>
 

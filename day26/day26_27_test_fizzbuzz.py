@@ -1,11 +1,10 @@
-from day26_27_fizzbuzz import fizzbuzz
 import pytest
-
-def test_fizzbuzz_initial():
-    assert fizzbuzz(1) == 1
-    assert fizzbuzz(2) == 2
-    assert fizzbuzz(3) == 'Fizz'
-    assert fizzbuzz(5) == 'Buzz'
+from day26_27_fizzbuzz import fizzbuzz
+# def test_fizzbuzz_initial():
+#     assert fizzbuzz(1) == 1
+#     assert fizzbuzz(2) == 2
+#     assert fizzbuzz(3) == 'Fizz'
+#     assert fizzbuzz(5) == 'Buzz'
     # we can see this is getting very repetitive
 
 # pytest has this nice parametrize feature where we can give it a list of tuples

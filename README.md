@@ -114,3 +114,28 @@ Learnt how to emulate a switch statement in Python using a dictionary.
     * Learnt how to simulate the input() call to get the user input using side_effects which can be a list of values.
     * Learnt about `capfd` a feature of pytest - which captures the standard output of the program and execution.
     * Learnt about pytest's parametrize feature where we can give it a list of tuples of argument and expected return values in a decorator. In the function we can just call the func with arg and test it against return
+    
+### Day 28 <2020-01-16>
+- Practised pytest using @pybites (fibonacci and a pybite)
+
+### Day 29 <2020-01-17>
+- Tested a stack data structure, learnt about @pytest.fixture
+
+### Day 30 <2020-01-18>
+- Learnt about the filter method. For e.g. say you want to remove a particular entry from a list, you can use:
+
+> def remove_mult_x(L, x): <br>
+>     assert type(L) is list and x is not None <br>
+>     new_L = list(filter((lambda num: num != x), L)) <br>
+>     return new_L <br>
+
+> Calling on:<br>
+> `remove_mult_x([1, 7, 2, 2, 4, 8, 2, 6], 2)`...<br>
+> [1, 7, 4, 8, 6]<br>
+
+- Note to self: upload nb's after the 27th Jan.
+
+### Day 31 <2020-01-19>
+- Did a bunch of dictionary and list exercises for Gtx course.
+- Note to self: upload nb's after the 27th Jan
+

@@ -1,8 +1,7 @@
-from day26_27_guess import get_random_number, Game
 from unittest.mock import patch
 import random
 import pytest
-
+from day26_27_guess import get_random_number, Game
 # We are going to mock an object since our function get_random_number 
 # uses a random integer but random returns something randomly 
 # So how do we test if the random is giving us a diff integer each time?
