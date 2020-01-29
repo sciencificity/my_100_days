@@ -139,3 +139,50 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 - Did a bunch of dictionary and list exercises for Gtx course.
 - Note to self: upload nb's after the 27th Jan
 
+### Day 32 <2020-01-20>
+- Halfway through Lesson 8 on RNNs of 'Intro to DL using Pytorch' from Udacity.
+- Did some intro pybite exercises
+
+### Day 33 <2020-01-21>
+- Continued with Lesson 8 of RNNs of 'Intro to DL using Pytorch' from Udacity
+- Talk Python list comprehensions
+
+    * Aside: Learnt about string module in the process: https://docs.python.org/3/library/string.html
+    * Nifty for if you need to match that the word in a corpus starts with a letter or similar
+
+### Day 34 <2020-01-22>
+- Built a shallow net using Keras
+- Completed Lesson 8 on RNNs of 'Intro to DL using Pytorch' from Udacity
+
+### Day 35 <2020-01-23>
+
+- Learnt how to use `&nbsp;` and `&emsp;` in markdown.
+- Learnt more about list comprehensions - for e.g. here's some advice from Trey over at PyMorsels. List comprehensions are great but sometimes less readable. Solution: break up a list comprehension over several lines.
+
+> Don't do this: <br> <br>
+> squared_odds = [n**2 for n in numbers if n % 2 == 1]
+
+
+> Do this:  <br> <br>
+> squared_odds = [ <br>
+> &nbsp;&nbsp;&nbsp;&nbsp;n**2<br>
+> &emsp;for n in numbers<br>
+> &ensp;&ensp;if n % 2 == 1<br>
+> ]<br>
+
+"Your code will take up more space this way, but that doesn't matter. Space isn't something we should be optimizing for, readability is."
+
+### Day 36 <2020-01-24>
+- Learnt about generators
+- Learnt about the timeit module. In order to use timeit in RMarkdown we need to import the module, and then call timeit with the name of the function as a string input 'func_name()', or "func_name()" and tell timeit to look in the global namespace for the function you're trying to time.
+
+### Day 37 <2020-01-25>
+- Did some list comprehension and dictionary comprehension bites.
+- Started Lesson 9 of Udacity's 'Intro to DL with Pytorch' course.
+
+### Day 38 <2020-01-26>
+- Completed GTx course assignment on association rules mining.
+- Learnt about defaultdict - there's good info in the post [here](https://realpython.com/python-coding-interview-tips/#handle-missing-dictionary-keys-with-collectionsdefaultdict)
+
+### Day 39 <2020-01-27>
+- Learnt about `*args` and `*kwargs`

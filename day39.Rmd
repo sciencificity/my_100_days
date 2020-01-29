@@ -1,0 +1,228 @@
+---
+title: "Day 39"
+author: "Data Analytics"
+date: "2020-01-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## args and kwargs:
+- **args**: allow you to pass multiple arguments to a function
+- **kwargs**: allow you to pass multiple keyword arguments to a function
+
+### *args
+
+**Consider the ffg simple func**<br>
+
+> &emsp;def my_sum(a, b):<br>
+> &emsp;&emsp;return a + b<br>
+
+The problem with the above is it sums up just 2 arguments, what if you wanted to sum up varying number of arguments? The specific number of arguments passed is only determined at runtime. It would be great to create a function that sums up all the arguments passed to it no matter how many there are.
+
+```{python}
+# consider the ffg simple func
+def my_sum(a, b):
+    return a + b
+my_sum(5,6)
+
+```
+
+There are a few ways you can sum up multiple numbers, the most intuitive for example is using a list, and then iterate over the list. To do this however you need to define the list up front, and sometimes you may not know all the values that need to go into the list. The usage of `args` here is great because it allows you to pass in a varying number of positional arguments.  
+
+The most flexible is `*args` - PS: you don't need to call the variable `*args` - `*integers` works just as well. The important thing is to use the *unpacking operator* - the single `*`. The iterable object you get using the single `*` unpacking operator, is NOT a list rather a tuple. A tuple is similar to a list in that they both support slicing and iteration however they are different in one aspect - lists are mutable, tuples are not (values cannot be changed after assignment).
+
+
+```{python}
+# alt to allow varing number of args - BUT you have to know list ahead of time
+def my_sum2(my_ints):
+    result = 0
+    for x in my_ints:
+        result += x
+    return result
+
+list_ints = [1,2,3,4]
+print(my_sum2(list_ints))
+
+
+# The most flexible is *args
+# PS: you don't need to call the variable args - *integers works just as well
+# The important thing is to use the unpacking operator - the single *
+# The iterable obj you get using the single * unpacking operator, is NOT a list rather a tuple
+# A tuple is similar to a list in that they both support slicing and iteration however they are different
+# in one aspect - lists are mutable, tuples are not (values cannot be changed after assignment)
+def my_sum3(*args):
+    result = 0
+    for x in args:
+        result += x
+    return result
+
+# the my_sum function packs the values provided in the input into a single iterable object named args
+print(my_sum3(1,2,3,4))
+
+# The most flexible is *args here named *ints_to_iterate to illustrate point above
+def my_sum4(*ints_to_iterate):
+    result = 0
+    for x in ints_to_iterate:
+        result += x
+    return result
+
+# the my_sum function packs the values provided in the input into a single iterable object named ints_to_iterate
+print(my_sum4(1,2,3,4,5))
+```
+
+### *kwargs
+
+Ok, so like **`*args`**, **`*kwargs`** allows multiple arguments to be iterated over. It does NOT accept *positional arguments* however. It rather accepts, keyword or named arguments. For example in the code below the `concatenate()` function will iterate through the python `*kwargs` dictionary and concatenate all the values it finds. Like **args*, **kwargs* is just a name that can be changed to whatever we want. Again the important thing here, is using the unpacking operator `**`. In the example below the iterable object is a standard dictionary - hence we use the standard dictionary `.values()` method to get the values of the dictionary.
+
+```{python}
+def concatenate(**kwargs):
+    result = ""
+    # iterate over the Python kwargs dictionary - use the normal .values() since
+    # iterable used here is a dictionary and to get at the values of a standard dict we use .values()
+    # if we don't specify .values() the for loop will iterate over the keys
+    for arg in kwargs.values():
+        result += arg
+    return result
+    
+print(concatenate(a = 'Real', b = 'Python', c = 'Is', d = 'Great', e = '!'))    
+```
+
+### Taking a variable number of input arguments
+What if we wanted a function that takes a changeable number of positional and named arguments? We have to keep in mind that **ORDER MATTERS**. Just as non-default arguments have to proceed default arguments so to `*args` must come before `*kwargs`!
+
+**The correct order of parameters is:**
+
+- Standard arguments
+- *args
+- *kwargs
+
+*Correct:*
+
+> &emsp;def my_func(a, b, *args, **kwargs): <br>
+> &emsp;&emsp;pass
+
+*Incorrect - results in a syntax error:*
+
+> &emsp;def my_func(a, b, **kwargs, *args): <br>
+> &emsp;&emsp;pass
+
+```{python}
+def my_func(a, b, *args, **kwargs):
+    pass
+
+my_func(1,2)
+# my_func(1,2,[1,2],{a='Nice',b='Job'})
+
+# Allowed - but cannot put c = 3 after **kwargs
+def my_func2(a, b, *args, c = 2, **kwargs):
+    pass
+
+my_func2(1,2)
+```
+
+Since version 3.5 the `*` and `**` unpacking operators are operators that unpack the values from iterable objects in Python.
+
+- The `*` may be used on any iterable object in Python
+- The `**` may only be used on dictionaries.
+
+> my_list = [1,2,3]
+> print(my_list)
+> [Out]: [1,2,3]
+
+Notice how the list together with it's corresponding brackets are printed?
+
+If you pre-pend the `*` to the name of the list? Here the operator tells print, 'please unpack the list first'. Now we don't get the list itself, but rather the content of the list.
+
+> my_list = [1,2,3]
+> print(*my_list)
+> [Out]: 1,2,3
+
+```{python}
+# Normal print gets list itself
+my_list = [1,2,3]
+print(my_list)
+
+# unpacking print gets the contents of list
+my_list = [1,2,3]
+print(*my_list)
+
+def my_new_sum(*args):
+    res = 0
+    for x in args:
+        res += x
+    return res
+    
+list1 = [1,2,3]
+list2 = [4,5]
+list3 = [6,7,8,9]
+
+print(my_new_sum(*list1, *list2, *list3))
+
+# split a list into 3 parts
+# 1st var must show 1st val, 3rd var must show last value, and middle var the values between
+my_test_list = [1,2,3,4,5,6]
+a, *b, c = my_test_list
+print(a)
+print(b)
+print(c)
+
+# split the items of any iterable object
+# useful if you need to merge 2 lists
+my_1st_lst = [1,2,3]
+my_2nd_lst = [4,5,6]
+my_merged_lst = [*my_1st_lst, *my_2nd_lst]
+print(my_merged_lst)
+
+# Same but with dictionaries
+my_1st_dict = {'A': 1, 'B': 2}
+my_2nd_dict = {'C': 3, 'D': 4}
+my_merged_dict = {**my_1st_dict, **my_2nd_dict}
+
+print(my_merged_dict)
+
+my_1st_dict = {'A': 1, 'B': 2}
+my_2nd_dict = {'B':6, 'C': 3, 'D': 4}
+my_merged_dict2 = {**my_1st_dict, **my_2nd_dict}
+
+# What happens if I merge 2 dictionaries, where the 2nd one has the same key as the first
+# The value in the merged dict will reflect the value as per the 2nd dictionary
+print(my_merged_dict2)
+
+# We can also use the * to unpack a string into a list
+a = [*'RealPython']
+print(a)
+
+# Much less readable but does same as above
+*a, = 'RealPython'
+print(a)
+```
+
+While the above example is nifty, we must keep in mind the "Zen of Python" in that readability counts.
+
+For example consider:
+
+> *a, = 'RealPython'<br>
+> print(a)<br>
+> [out]: ['R', 'e', 'a', 'l', 'P', 'y', 't', 'h', 'o', 'n']<br>
+
+This does the same as:
+
+> a = [*'RealPython'] 
+ 
+but it is a bit obscure.
+
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```

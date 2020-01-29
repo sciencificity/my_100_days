@@ -1,0 +1,262 @@
+---
+title: "Day 37"
+author: "Data Analytics"
+date: "2020-01-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Second day: practice
+Look at your code and see if you can refactor it to use list comprehensions. Same for generators. Are you building up a list somewhere where you could potentially use a generator?
+
+And/or exercise here, take this list of names:
+
+
+```{python}
+NAMES = ['arnold schwarzenegger', 'alec baldwin', 'bob belderbos',
+         'julian sequeira', 'sandra bullock', 'keanu reeves',
+         'julbob pybites', 'bob belderbos', 'julian sequeira',
+         'al pacino', 'brad pitt', 'matt damon', 'brad pitt']
+```
+
+Can you write a simple list comprehension to convert these names to title case (brad pitt -> Brad Pitt). Or reverse the first and last name?
+
+Then use this same list and make a little generator, for example to randomly return a pair of names, try to make this work:
+
+> pairs = gen_pairs() <br>
+> for _ in range(10): <br>
+> &emsp;&emsp; next(pairs) <br>
+
+
+Should print (values might change as random):
+
+> Arnold teams up with Brad <br>
+> Alec teams up with Julian <br>
+
+Have fun!
+
+```{python}
+import random
+title_case_lst = [name.title() for name in NAMES]
+print(title_case_lst)
+
+reversed_lst = [' '.join(reversed(name.split())) for name in NAMES]
+print(reversed_lst)
+
+# def create_select_options_gen(options = options):
+#     for option in options:
+#         yield f'<option value={option}>{option.title()}</option>'
+        
+def gen_pairs(list_vals = title_case_lst):
+    first_name_lst = [name.split()[0] for name in list_vals]
+    print(first_name_lst)
+    for name in first_name_lst:
+        choice = name
+        while name == choice:
+            choice = random.choice(first_name_lst)
+            if name != choice:
+                break
+        yield f'{name} teams up with {choice}'
+    # for name in first_name_lst:
+    #     yield f'<option value={option}>{option.title()}</option>'    
+    
+pairs = gen_pairs()   
+for _ in range(10):
+    next(pairs)
+```
+
+```{python}
+import itertools
+# slice a generator
+iter_slice = itertools.islice(pairs, 10)
+
+list(iter_slice)
+```
+
+
+
+## Bite 5. Parse a list of names
+In this bite you will work with a list of names.
+
+First you will write a function to take out duplicates and title case them.
+
+Then you will sort the list in alphabetical descending order by surname and lastly determine what the shortest first name is. For this exercise you can assume there is always one name and one surname.
+
+With some handy Python builtins you can write this in a pretty concise way. Get it sorted :)
+
+```{python}
+NAMES = ['arnold schwarzenegger', 'alec baldwin', 'bob belderbos',
+         'julian sequeira', 'sandra bullock', 'keanu reeves',
+         'julbob pybites', 'bob belderbos', 'julian sequeira',
+         'al pacino', 'brad pitt', 'matt damon', 'brad pitt']
+
+
+def dedup_and_title_case_names(names):
+    """Should return a list of title cased names,
+       each name appears only once"""
+    names_title = [name.title() for name in names]
+    names_set = set(names_title)
+    return(list(names_set))
+
+print(dedup_and_title_case_names(NAMES))
+
+def sort_by_surname_desc(names):
+    """Returns names list sorted desc by surname"""
+    names = dedup_and_title_case_names(names)
+    # ...
+    reversed_lst = [' '.join(reversed(name.split())) for name in names]
+    reversed_lst = sorted(reversed_lst, reverse = True)
+    final_lst = [' '.join(reversed(name.split())) for name in reversed_lst]
+    # print(final_lst)
+    return(final_lst)
+
+print(sort_by_surname_desc(NAMES))
+import re
+def shortest_first_name(names):
+    """Returns the shortest first name (str).
+       You can assume there is only one shortest name.
+    """
+    names = dedup_and_title_case_names(names)
+    # ...
+    new_names = [name.split()[0] for name in names]
+    # print(min(new_names, key = len))
+    # print(new_names)
+    return min(new_names, key = len)
+    
+shortest_first_name(NAMES)
+re.sub(r'def\s+([a-zA-Z_][a-zA-Z_0-9]*)\s*\(\s*\):',
+     r'static PyObject*\npy_\1(void)\n{',
+        'def myfunc():')
+        
+NAMES = ['arnold schwarzenegger', 'alec baldwin', 'bob belderbos',
+         'julian sequeira', 'sandra bullock', 'keanu reeves',
+         'julbob pybites', 'bob belderbos', 'julian sequeira',
+         'al pacino', 'brad pitt', 'matt damon', 'brad pitt']
+
+
+def dedup_and_title_case_names_pybites(names):
+    """Should return a list of title cased names,
+       each name appears only once"""
+    return list({name.title() for name in names})
+
+
+def sort_by_surname_desc_pybites(names):
+    """Returns names list sorted desc by surname"""
+    names = dedup_and_title_case_names(names)
+    return sorted(names,
+                  key=lambda x: x.split()[-1],
+                  reverse=True)
+
+
+def shortest_first_name_pybites(names):
+    """Returns the shortest first name (str).
+       You can assume there is only one shortest name.
+    """
+    names = dedup_and_title_case_names(names)
+    names = [name.split()[0] for name in names]
+    return min(names, key=len)        
+```
+
+```{python}
+PY_CONTENT_CREATORS = ['brian okken', 'michael kennedy', 'trey hunner',
+                       'matt harrison', 'julian sequeira', 'dan bader',
+                       'michael kennedy', 'brian okken', 'dan bader']
+
+
+def test_dedup_and_title_case_names():
+    names = dedup_and_title_case_names(NAMES)
+    assert names.count('Bob Belderbos') == 1
+    assert names.count('julian sequeira') == 0
+    assert names.count('Brad Pitt') == 1
+    assert len(names) == 10
+    assert all(n.title() in names for n in NAMES)
+
+
+def test_dedup_and_title_case_names_different_names_list():
+    actual = sorted(dedup_and_title_case_names(PY_CONTENT_CREATORS))
+    expected = ['Brian Okken', 'Dan Bader', 'Julian Sequeira',
+                'Matt Harrison', 'Michael Kennedy', 'Trey Hunner']
+    assert actual == expected
+
+
+def test_sort_by_surname_desc():
+    names = sort_by_surname_desc(NAMES)
+    assert names[0] == 'Julian Sequeira'
+    assert names[-1] == 'Alec Baldwin'
+
+
+def test_sort_by_surname_desc_different_names_list():
+    names = sort_by_surname_desc(PY_CONTENT_CREATORS)
+    assert names[0] == 'Julian Sequeira'
+    assert names[-1] == 'Dan Bader'
+
+
+def test_shortest_first_name():
+    assert shortest_first_name(NAMES) == 'Al'
+
+
+def test_shortest_first_name_different_names_list():
+    assert shortest_first_name(PY_CONTENT_CREATORS) == 'Dan'
+
+```
+
+### Bite 26. Dictionary comprehensions are awesome
+A dictionary comprehension is like a list comprehension, but it constructs a dict instead of a list. They are convenient to quickly operate on each (key, value) pair of a dict. And often in one line of code, maybe two after checking PEP8 ;)
+
+We think they are elegant, that's why we want you to know about them!
+
+In this Bite you are given a dict and a set. Write a dictionary comprehension that filters out the items in the set and returns the resulting dict, so if your dict is {1: 'bob', 2: 'julian', 3: 'tim'} and your set is {2, 3}, the resulting dict would be {1: 'bob'}.
+
+Check out the tests for more details. Have fun!
+
+```{python}
+bites = {6: 'PyBites Die Hard',
+         7: 'Parsing dates from logs',
+         9: 'Palindromes',
+         10: 'Practice exceptions',
+         11: 'Enrich a class with dunder methods',
+         12: 'Write a user validation function',
+         13: 'Convert dict in namedtuple/json',
+         14: 'Generate a table of n sequences',
+         15: 'Enumerate 2 sequences',
+         16: 'Special PyBites date generator',
+         17: 'Form teams from a group of friends',
+         18: 'Find the most common word',
+         19: 'Write a simple property',
+         20: 'Write a context manager',
+         21: 'Query a nested data structure'}
+exclude_bites = {6, 10, 16, 18, 21}
+
+
+def filter_bites(bites=bites, bites_done=exclude_bites):
+    """return the bites dict with the exclude_bites filtered out"""
+    filtered_dict = {k:v for k,v in bites.items() if k not in bites_done}
+    return filtered_dict
+
+print(filter_bites())
+```
+
+```{python}
+def test_filter_bites():
+    result = filter_bites()
+    assert type(result) == dict
+    assert len(result) == 10
+    for bite in exclude_bites:
+        assert bite not in result, f'Bite {bite} should not be in result'
+
+```
+
+```{python}
+names = ['Vebash Naidoo', 'Number Six', 'Number Eight', 'Kara Thrace', 'Lee Adama']
+
+# Want to reverse the names with Last Name then First Name
+# split each name in the list -> using split() splits on the default character being space
+# Then reverse the split name
+# Join them up again using join with ' ' being the joining character to produce: LastName FirstName
+reversed_lst = [' '.join(reversed(name.split())) for name in names]
+
+print(reversed_lst)
+
+```

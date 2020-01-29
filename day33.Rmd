@@ -1,0 +1,175 @@
+---
+title: "Day 33"
+author: "Data Analytics"
+date: "2020-01-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## List comprehensions and generators
+
+```{python}
+from collections import Counter
+import calendar
+import itertools
+import random
+import re
+import string
+
+import requests
+```
+
+### List comprehensions
+Let's say we want to loop through a bunch of names title-casing each one.
+
+```{python}
+names = 'pybites mike bob Julian tim sara Guido kai Elaine'.split()
+print(names)
+for name in names:
+    print(name.title())
+```
+
+Now I want to keep only A-M. The `strings` module helps here. It has helpers like ascii_lowercase
+
+```{python}
+# use ascii_lowercase to get the lower case letters, subset what you need
+# first_half_alpha = list(string.ascii_lowercase)[:13]
+# print(first_half_alpha)
+
+# Let's say I mess with the list of names a bit and include already title case ones
+# and some lower case ones
+# Here we would need the letters a-m and A-M so use the ascii_letters and slice appropriately
+first_half_alpha_both = list(string.ascii_letters)[:13] + list(string.ascii_letters[26:39])
+
+print(first_half_alpha_both)
+
+print(list(string.ascii_letters))
+
+```
+```{python}
+new_names = []
+
+for name in names:
+    if name[0] in first_half_alpha_both:
+        new_names.append(name.title())
+print(new_names)
+```
+
+The `for loop` feels verbose though. So let's try out list comprehensions.
+
+```{python}
+# we can see this step by step - if we just wanted each ele in the list
+print([name for name in names])
+
+# now let's title all as we did initially
+print([name.title() for name in names])
+
+# We can also add conditionals in the list comprehensions
+print([name for name in names if name[0] in first_half_alpha_both])
+
+# title case the new list
+print([name.title() for name in names if name[0] in first_half_alpha_both])
+
+# Making list comprehensions more readable
+new_list2 = [
+                name.title()
+                for name in names
+                if name[0] in first_half_alpha_both
+            ]
+assert(new_list2 == new_names)
+
+```
+
+### Practise bite:
+
+```{python}
+
+def filter_positive_even_numbers(numbers):
+    """Receives a list of numbers, and returns a filtered list of only the
+       numbers that are both positive and even (divisible by 2), try to use a
+       list comprehension."""
+    evens = [num for num in numbers if ((num % 2 == 0) and (num > 0))]
+    return evens
+    
+def test_filter_positive_and_negatives():
+    numbers = list(range(-10, 11))
+    assert filter_positive_even_numbers(numbers) == [2, 4, 6, 8, 10]
+
+
+def test_only_positives():
+    numbers = [2, 4, 51, 44, 47, 10]
+    assert filter_positive_even_numbers(numbers) == [2, 4, 44, 10]
+
+
+def test_filter_zero_and_negatives():
+    numbers = [0, -1, -3, -5]
+    assert filter_positive_even_numbers(numbers) == []
+
+filter_positive_even_numbers(list(range(-10, 11)))    
+
+test_filter_positive_and_negatives()
+test_only_positives()
+test_filter_zero_and_negatives()
+
+```
+
+
+Let's load some text from Harry Potter and remove stop words
+
+```{python}
+resp = requests.get('http://projects.bobbelderbos.com/pcc/harry.txt')
+# Parse the response which is resp.text
+# lower case all of the string
+# split on the space ' '
+words = resp.text.lower().split()
+# Let's have a look at a few of the words
+words[:5]
+```
+
+Let's get the most common words.
+```{python}
+cnt = Counter(words)
+# We use the most_common() func
+cnt.most_common(5)
+```
+
+Hhmm we should not count stop words like `the`, `a`, `on` etc., and there are also more chars like `-`. Let us first remove the non-alpha characters.
+
+```{python}
+print(f'Is there a "-" in the words we got from the text? {"-" in words}')
+
+# remove the non-alpha characters like - etc.
+# regex \W matches any non-alpha char - equivalent to writing [^a-zA-Z0-9_]
+# If the first character of the set is '^', all the characters that are not in the set will be matched.
+# Above says any character not in a-z, A-Z, 0-9, _ must be matched
+# We use a list comprehension to do so
+words = [re.sub(r'\W+',r'', word) for word in words] # may result in empty words, we will take care of that soon
+
+# So is the dash gone?
+print(f'Is the "-" in the words gone now? {"-" in words}')
+```
+
+Let's remove the stop words now.
+```{python}
+print(f'Is there a "the" in the words we got from the text? {"the" in words}')
+resp = requests.get('http://projects.bobbelderbos.com/pcc/stopwords.txt')
+stopwords = resp.text.lower().split()
+print(f'The number of stopwords we are considering is: {len(stopwords)}')
+# Let's get rid of these from our words list
+# words =[word for word in words if word not in stopwords] # my try - but there may be empty strings which we want to strip
+# Bob's way includes checking for non-empty words, and words not a stopword
+words =[word for word in words if word.strip() and word not in stopwords]
+# Is the in words still?
+print(f'Is there a "the" in the words list now? {"the" in words}')
+```
+
+Let's check the counts again - what's the most common words now?
+
+```{python}
+cnt = Counter(words)
+cnt.most_common(5)
+```
+
