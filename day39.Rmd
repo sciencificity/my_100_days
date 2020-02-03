@@ -75,7 +75,7 @@ print(my_sum4(1,2,3,4,5))
 
 ### *kwargs
 
-Ok, so like **`*args`**, **`*kwargs`** allows multiple arguments to be iterated over. It does NOT accept *positional arguments* however. It rather accepts, keyword or named arguments. For example in the code below the `concatenate()` function will iterate through the python `*kwargs` dictionary and concatenate all the values it finds. Like **args*, **kwargs* is just a name that can be changed to whatever we want. Again the important thing here, is using the unpacking operator `**`. In the example below the iterable object is a standard dictionary - hence we use the standard dictionary `.values()` method to get the values of the dictionary.
+Ok, so like **`*args`**, **`*kwargs`** allows multiple arguments to be iterated over. It does NOT accept *positional arguments* however. It rather accepts, keyword or named arguments. For example in the code below the `concatenate()` function will iterate through the python `*kwargs` dictionary and concatenate all the values it finds. Like **`*args`**, **`*kwargs`** is just a name that can be changed to whatever we want. Again the important thing here, is using the unpacking operator `**`. In the example below the iterable object is a standard dictionary - hence we use the standard dictionary `.values()` method to get the values of the dictionary.
 
 ```{python}
 def concatenate(**kwargs):
@@ -214,15 +214,3 @@ This does the same as:
  
 but it is a bit obscure.
 
-
-```{python}
-
-```
-
-```{python}
-
-```
-
-```{python}
-
-```

@@ -186,3 +186,26 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 
 ### Day 39 <2020-01-27>
 - Learnt about `*args` and `*kwargs`
+
+### Day 40 <2020-01-28>
+- Learnt about the representation of floating point and double precision numbers in Python.
+- Finished Lesson 9 of Udacity's 'Intro to DL with Pytorch' course.
+- Upload nb after the 7th Feb.
+
+### Day 41 <2020-01-29>
+- Finished Udacity's 'Intro to DL with Pytorch' course. 
+
+### Day 42 <2020-01-30>
+- Learnt about the Kahan summation algo which gives a more accurate sum that usual summing due to the rounding off error. https://en.wikipedia.org/wiki/Kahan_summation_algorithm
+- Upload nb after the 7th Feb.
+
+### Day 43 <2020-01-31>
+- Worked on GtX assignments due 2020-02-03. Learnt about how the int() function in Python takes 2 arguments, the string you want to convert as well as the base of the string. https://docs.python.org/3/library/functions.html#int
+
+> Definition: int(x, base = 10)<br>
+> int('101', base = 2) # Call the function but specify that string representation is in base 2<br>
+> &emsp;[Out]: 5<br>
+
+- Note to self: upload nb's after the 7th Feb.
+
+
