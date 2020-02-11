@@ -208,4 +208,54 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 
 - Note to self: upload nb's after the 7th Feb.
 
+### Day 44 <2020-02-01> and Day 45 <2020-02-02>
+- Worked on GtX assignments due 2020-02-03. Had to solve numerous exercises on converting between base 2, 16 etc. to base 10, integers. Also how to deal with floating point / double precision arithmetic which will result in rounding off errors. We can get more accurate sums but we need to do some saving of interim values etc.
+
+### Day 46 <2020-02-03>
+- Worked on general regex patterns in a text editor (I used sublime). Enable the .* (Regex matching) and Aa (case sensitive) in the Find options to do regex pattern matching. 
+
+    * General regex (I used sublime text editor, go to Find and click the `.*` for regex): https://www.youtube.com/watch?v=sa-TUpSx1JA
+    * Python specific: https://www.youtube.com/watch?v=K8L6KVGG-7o
+
+### Day 47 <2020-02-04>
+- Worked on regex patterns in Python. Learnt the difference between the match() method vs the search() method. 
+
+    * The match() method only looks for if it can find the pattern you're looking for in the beginning of the string. 
+    * The search() method on the other hand looks everywhere in the string and returns the first match.
+    * The finditer() method returns all matches with additional metadata like where the match is in the string etc.
+    * The findall() method returns just the matches as a list. If you have groups in your regex, it will return all groups as tuples within the list. Put brackets `()` around the entire pattern string if you want the full match to be returned too.
+
+### Day 48 <2020-02-05>
+- More regex: For example regex can include quantifiers. These are things such as:
+    
+    - `*`   : matches 0 or more characters e.g. `.*` means 0 or more of any charater.
+    - `+`   : matches 1 or more characters e.g. `\d+` means match 1 0r more digits
+    - `{}`  : matches exactly the number within the brackets e.g. `[a-z]{3}` says match exactly 3 lowercase letters
+    - `{,}` : matches number of chars in a range e.g. `\d{3,5}` says match either 3, 4 or 5 digits
+    - `?`   : matches 0 or 1 of the character e.g. `\s` says I can either have no space characters, or I can have 1.
+    
+### Day 49 <2020-02-06>
+- Still more regex. Watched the @talkpython videos on regex. For e.g. you should always keep in mind when not to use regex - e.g. are you looking for some text that begins with something particular? Use the `startswith()` method.
+
+### Day 50 <2020-02-07>
+- More regex (I know this seems like overkill, but I have 2 regex assignments due 2020-02-10 hence the deep dive). Today I learnt about `re.VERBOSE`. You can use `re.VERBOSE` which ignores spaces and comments in the pattern string so you can spread your pattern over several lines to make the pattern regex more readable.
+
+### Day 51 <2020-02-08>
+- Prepared some Qs for the study jam that I co-hosted with Erica G, that took place for the 'Intro to DL using PyTorch' Udacity course. The Qs were a review of Lesson 5 and covered PyTorch Basics.
+
+    Say I have this tensor x2d . how would you pull out the item in the 4th row, last column as a normal Python value?
+    
+    > x2d <br>
+    > tensor([[ 0.,  1.,  2.], <br>
+    > &emsp;&emsp;  [ 3.,  4.,  5.], <br>
+    > &emsp;&emsp;  [ 6.,  7.,  8.], <br>
+    > &emsp;&emsp;  [ 9., 10., 11.]], dtype=torch.float64) <br>
+    
+    Answer: Use .item() after using array indexing to get at the item concerned. This pulls the value out of the tensor. print(x2d[3,2].item())
+
+
+### Day 52 <2020-02-09>
+- Completed the regex assignments for the GTx course.
+
+
 
