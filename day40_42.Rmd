@@ -1,0 +1,316 @@
+---
+title: "Day 40"
+author: "Data Analytics"
+date: "2020-01-28 and 2020-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Numbers
+Numbers (both integers and floating point numbers) are stored as binary digits. Sometimes the binary representation is an approximation or leads to rounding off errors due to it's representation being infinite where we can only store finite digits on a computer.
+
+Here is a surprising result. If we consider the two system of equations below, what would be the result of this? Anyone would probably say that $t == a$. <br>
+
+$s = a + b$<br>
+$t = s - b$<br><br>
+
+$s = a - b$<br>
+$t = s + b$
+
+
+```{python}
+# init values
+a = 1.0
+b = 0.1
+print(f'(a,b) == {(a,b)}')
+
+# 1st Test
+s1 = a + b
+t1 = s1 - b
+
+print(f'(s1,t1) == {(s1,t1)}')
+
+# 2nd Test
+s2 = a - b
+t2 = s2 + b
+
+print(f'(s2,t2) == {(s2,t2)}')
+
+# Do the programs produce same result?
+print(f't1 == t2) == {t1 == t2}')
+```
+
+Okay all looks good above .... so what's the big deal?
+
+Let's try with an exact power of 2 since that can be stored exactly. 
+```{python}
+# init values
+a = 1.0
+b = 2 **(-53)
+print(f'(a,b) == {(a,b)}')
+
+# 1st Test
+s1 = a + b
+t1 = s1 - b
+
+print(f'(s1,t1) == {(s1,t1)}')
+
+# 2nd Test
+s2 = a - b
+t2 = s2 + b
+
+print(f'(s2,t2) == {(s2,t2)}')
+
+# Do the programs produce same result?
+print(f't1 == t2) == {t1 == t2}')
+
+```
+
+Hhmm, so what's going on here? With exact representations of numbers we're getting slightly different results such that our "assertion" check is failing. But with inexact inputs the 2 programs produced exactly the same results.
+```{python}
+l = ['0', '1', '2', '9', 'a', 'b', 'z', 'A', 'B', 'Z']
+ord_list = [ord(x) - ord('a') for x in l]
+print(f'List is {l}, and ord of list is {ord_list}')
+
+```
+
+
+```{python}
+def is_valid_strdigit(c, base=2):
+    if type (c) is not str: return False # Reject non-string digits
+    if (type (base) is not int) or (base < 2) or (base > 36): return False # Reject non-integer bases outside 2-36
+    if base < 2 or base > 36: return False # Reject bases outside 2-36
+    if len (c) != 1: return False # Reject anything that is not a single character
+    if '0' <= c <= str (min (base-1, 9)): return True # Numerical digits for bases up to 10
+    if base > 10 and 0 <= ord (c) - ord ('a') < base-10: return True # Letter digits for bases > 10
+    return False # Reject everything else
+
+def valid_strdigits(base=2):
+    POSSIBLE_DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz'
+    return [c for c in POSSIBLE_DIGITS if is_valid_strdigit(c, base)]
+
+def print_valid_strdigits(base=2):
+    valid_list = valid_strdigits(base)
+    if not valid_list:
+        msg = '(none)'
+    else:
+        msg = ', '.join([c for c in valid_list])
+    print('The valid base ' + str(base) + ' digits: ' + msg)
+    
+# Quick demo:
+print_valid_strdigits(6)
+print_valid_strdigits(16)
+print_valid_strdigits(23)
+
+```
+
+```{python}
+def eval_strint(s, base=2):
+    assert type(s) is str
+    assert 2 <= base <= 36
+    ###
+    ### YOUR CODE HERE
+    ###
+    return int(s, base)
+
+# Test: `eval_strint_test0` (1 point)
+
+def check_eval_strint(s, v, base=2):
+    v_s = eval_strint(s, base)
+    msg = "'{}' -> {}".format (s, v_s)
+    print(msg)
+    assert v_s == v, "Results do not match expected solution."
+
+# Test 0: From the videos
+check_eval_strint('16180339887', 16180339887, base=10)
+print ("\n(Passed!)")
+
+# Test: `eval_strint_test1` (1 point)
+check_eval_strint('100111010', 314, base=2)
+print ("\n(Passed!)")
+
+# Test: `eval_strint_test2` (1 point)
+check_eval_strint('a205b064', 2718281828, base=16)
+print ("\n(Passed!)")
+```
+
+```{python}
+def is_valid_strfrac(s, base=2):
+    return all([is_valid_strdigit(c, base) for c in s if c != '.']) \
+        and (len([c for c in s if c == '.']) <= 1)
+    
+def eval_strfrac(s, base=2):
+    assert is_valid_strfrac(s, base), "'{}' contains invalid digits for a base-{} number.".format(s, base)
+    
+    ###
+    ### YOUR CODE HERE
+    ###
+    where_is_dec = s.find('.') # where is the decimal point?
+
+    # print(where_is_dec)
+    
+    if where_is_dec == -1: # it was an integer number
+        sum_digits = float(eval_strint(s, base)) # convert it straight away
+    else: # it was a decimal number -> break into whole + remainder
+        # we count 0, 1, 2, 3 from left to right for nums before decimal
+        # but we count -1, -2, -3 for nums after the decimal 
+        # So here we want to find what's the most -ve value
+        # 1 0 0  .  1 1   -> 1 x 2^2 + 0 x 2^1 + 0 x 2^2 + 1 x 2^-1 + 1 x 2^-2
+        # 2 1 0   -1 -2   -> exp to raise base to
+        # 0 1 2  3  4 5   -> indices
+        most_neg = where_is_dec - len(s) + 1 # this would fine -2 for 100.11 
+        multiplicant = base ** most_neg # raise base to most negative -> for 100.11 base 2 this would be 2^-2 = 1/4
+        int_part = s[:where_is_dec] # get integer part -> for 100.11 this would be 100
+        dec_part = s[where_is_dec+1:] # get decimal part -> for 100.11 this would be 11
+        sum_digits = eval_strint(int_part, base) + (eval_strint(dec_part, base) * multiplicant)
+
+    return float(sum_digits)
+
+#eval_strfrac('0.11', 2)
+```
+
+
+```{python}
+
+from decimal import *
+getcontext().prec = 53
+def fp_bin(v):
+    assert type(v) is float
+###
+### YOUR CODE HERE
+###
+    if v < 0:
+        v_sign = '-'
+    else:
+        v_sign = '+'
+    num_str = str(v)
+    parts = num_str.split('.', 2)
+    decimal = parts[1] if len(parts) > 1 else ''
+    exp = -len(decimal)
+    digits = parts[0].lstrip('0') + decimal
+    trimmed = digits.rstrip('0')
+    getcontext().prec = 53
+    exp += len(digits) - len(trimmed)
+    sig = Decimal(digits) if trimmed else Decimal(0)
+    return v_sign, str(sig), exp
+
+getcontext()
+print(Decimal(0))
+Decimal(1) / Decimal(7)
+Decimal(1) * Decimal(0)
+Decimal.from_float(0.0)/Decimal.from_float(1.0)
+```
+
+```{python}
+# Test: `experiment_results`
+import pandas as pd
+from IPython.display import display
+
+import matplotlib.pyplot as plt
+
+def alg_sum(x): # x == x[:n]
+    s = 0.
+    for x_i in x: # x_0, x_1, \ldots, x_{n-1}
+        s += x_i
+    return s
+    
+def alg_sum_accurate(x):
+    assert type(x) is list
+    ###
+    ### YOUR CODE HERE
+    ###
+    partials = []               # sorted, non-overlapping partial sums
+    for n in x:
+        i = 0
+        for y in partials:
+            if abs(n) < abs(y):
+                n, y = y, n
+            hi = n + y
+            lo = y - (hi - n)
+            if lo:
+                partials[i] = lo
+                i += 1
+            n = hi
+        partials[i:] = [n]
+        print(partials)
+    return sum(partials, 0.0)
+
+# Test: `alg_sum_accurate_test`
+from math import exp
+from numpy.random import lognormal
+
+# Disallow certain implementations:
+import numpy
+if 'sum' in dir(numpy): del numpy.sum
+
+print("Generating non-uniform random values...")
+N = [10]
+x = [lognormal(-10.0, 10.0) for _ in range(max(N))]
+print("Range of input values: [{}, {}]".format(min(x), max(x)))
+print(x)
+
+print("Computing the 'exact' sum. May be slow so please wait...")
+x_exact = [Decimal(x_i) for x_i in x]
+s_exact = [float(sum(x_exact[:n])) for n in N]
+print("==>", s_exact)
+
+print("Running alg_sum()...")
+s_alg = [alg_sum(x[:n]) for n in N]
+print("==>", s_alg)
+
+print("Running alg_sum_accurate()...")
+s_acc = [alg_sum_accurate(x[:n]) for n in N]
+print("==>", s_acc)
+
+print("Summary of relative errors:")
+ds_alg = [abs(s_a - s_e) / s_e for s_a, s_e in zip(s_alg, s_exact)]
+ds_acc = [abs(s_a - s_e) / s_e for s_a, s_e in zip(s_acc, s_exact)]
+display (pd.DataFrame ({'n': N,
+                        'rel_err(alg_sum)': ds_alg,
+                        'rel_err(alg_sum_accurate)': ds_acc}))
+
+assert all([r_acc < r_alg for r_acc, r_alg in zip(ds_acc[1:], ds_alg[1:])]), \
+       "The 'accurate' algorithm appears to be less accurate than the conventional one!"
+
+print("\n(Passed!)")
+
+# https://en.wikipedia.org/wiki/Kahan_summation_algorithm
+# 
+# function KahanSum(input)
+#     var sum = 0.0                    // Prepare the accumulator.
+#     var c = 0.0                      // A running compensation for lost low-order bits.
+#     for i = 1 to input.length do     // The array input has elements indexed input[1] to input[input.length].
+#         var y = input[i] - c         // c is zero the first time around.
+#         var t = sum + y              // Alas, sum is big, y small, so low-order digits of y are lost.
+#         c = (t - sum) - y            // (t - sum) cancels the high-order part of y; subtracting y recovers negative (low part of y)
+#         sum = t                      // Algebraically, c should always be zero. Beware overly-aggressive optimizing compilers!
+#     next i                           // Next time around, the lost low part will be added to y in a fresh attempt.
+#     return sum
+
+def alg_sum_accurate_kahan(x):
+    assert type(x) is list
+    ###
+    ### YOUR CODE HERE
+    ###
+    sum_val = 0.0
+    c = 0.0
+    for i in x:
+        y = i - c
+        t = sum_val + y
+        c = (t - sum_val) - y
+        sum_val = t
+    return sum_val
+
+print("Running alg_sum_accurate()...")
+s_acc = [alg_sum_accurate_kahan(x[:n]) for n in N]
+print("==>", s_acc)
+```
+
+```{python}
+
+```
+
+

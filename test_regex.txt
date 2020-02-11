@@ -1,0 +1,52 @@
+abcdefghijklmnopqrstuvwxyz
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+1234567890
+
+Ha HaHa
+
+MetaCharacters (Need to be escaped):
+.[{()\^$|?*+
+
+coreyms.com
+
+321-555-4321
+123.555.1234
+123*555*1234
+900-123-3444
+800-123-4564
+900-256-8922
+
+Mr. Schafer
+Mr Smith
+Ms Davis
+Mrs Robinson
+Mr. T
+
+CoreyMSchafer@gmail.com
+corey.schafer@university.edu
+corey-321-schafer@my-work.net
+test@some-domain.co.za 
+
+https://www.google.com
+http://coreyms.com
+https://youtube.com
+https://www.nasa.gov
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

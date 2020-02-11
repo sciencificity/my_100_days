@@ -1,0 +1,612 @@
+---
+title: "Day 46"
+author: "Data Analytics"
+date: "2020-02-03, 2020-02-04, 2020-02-05, 2020-02-06, 2020-02-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Regular Expressions
+### Regex in Sublime Text Editor (or similar)
+
+#### Text
+**2020-02-03**
+
+> abcdefghijklmnopqrstuvwxyz<br>
+> ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+> 1234567890<br>
+> 
+> Ha HaHa<br>
+> 
+> MetaCharacters (Need to be escaped):<br>
+> .[{()\^$|?*+<br>
+> 
+> coreyms.com<br>
+> 
+> 321-555-4321<br>
+> 123.555.1234<br>
+> 
+> Mr. Schafer <br>
+> Mr Smith<br>
+> Ms Davis<br>
+> Mrs Robinson<br>
+> Mr. T<br>
+
+1. Go to Find in Find Menu. <br>
+2. Ensure you choose the `.*` for **Regular Expression** find.<br>
+<img src = reg1.png><br>
+3. Ensure you choose the `Aa` for **Case sensitive** find since regular expressions behave in this manner.<br>
+<img src = reg2.png><br>
+
+
+#### Patterns
+
+1. There are some characters (the MetaCharacters) which need to be escaped before that may be matched. For example here we want to find the literal `.` so we need to escape the `.` by using the backslash character ->> `\.`.<br><br>
+<img src = reg3.png><br><br>
+<img src = reg4.png><br><br>
+2. `\d` i.e. smaller case d, matches any digit<br><br>
+<img src = reg5.png><br><br>
+3. `\D` i.e. upper case D, matches any non-digit<br><br>
+<img src = reg6.png><br><br>
+4. This a pattern - the upper case versions negate the search of the equivalent lower case version ones!<br><br>
+5. `\s` matches any space, tab or newline character.<br><br>
+<img src = reg7.png><br>
+6. `\b`, `\B`, `^`, `$`: Are called anchors - they don't match characters but invisible positions before and after characters
+
+    * `\b`: word boundary - if we search for a word boundary with characters *Ha* we see that the first Ha gets matched - it is the start of the new line. Then the space is the word boundary for the next *Ha*. The last *Ha* does not get matched since there is no space between the two Ha's. <br>
+    <img src = reg8.png> <br>
+
+7. If we try and find phone numbers in this text we can use `\d\d\d.\d\d\d.\d\d\d\d` where . will match any character but it also matches the number with `*` in it but that is not a valid phone number. To get it to only match the `-` or `.` we have to use our own character set. A character set uses `[]` with the characters we want to match - it basically says match char_a OR char_b OR .... char_x - i.e. it matches single letters. **Note: The `.` does not need to be escaped when in the character set.** <br> <br>
+<img src = reg9.png> <br><br>
+<img src = reg10.png> <br><br>
+
+    * What if I wanted only 800/900 numbers? I can use the pattern: `[89]00[-.]\d\d\d[-.]\d\d\d\d`. <br><br>
+    <img src = reg11.png><br><br>
+8. The character set can include the `-` to specify a range. For example `[a-z]` says match any character a, b, c, d ...., z. 
+9. The `^` character is a special character as noted above in Pt. 6. Outside of a character set it matches the start of a string, however within a character set it negates the character set specified! So `^s` says give me everything that starts with small letter s. The `[^s]` says match any character that is not small letter s. <br><br>
+ 
+    * Here it says match anything that is NOT a letter. <br><br>
+    <img src = reg12.png> <br><br>
+    
+10. We have quantifiers - the quantifiers come after the pattern we're looking for:
+
+    | *&emsp;&emsp;     - matches 0 or more characters <br>
+    | +&emsp;&emsp;     - matches 1 or more characters <br> 
+    | {3}&emsp;&emsp;   - matches exactly the number specified within brackets for the character <br>
+    | {3,5}&emsp;&emsp; - matches number of characters within the min, max range (e.g. here it says match 3, 4, or 5 chars) <br>
+    | ? &emsp;&emsp; - matches 0 or 1 of the character <br>
+    
+E.g. here `\d{3}[-.]\d{3}[-.]\d{4}` says match 3 digits followed by a `-` or `.`, followed by another 3 digits, followed by another `-` or `.`, followed by 4 digits. <br>
+
+<img src = reg13.png> <br><br>
+
+E.g. here `M(r|s|rs)\.?\s[A-Z]\w*` says match all the Mr, Ms, etc. The `()` creates a group and here we are saying look for anything that starts with **M** followed by either **r, s, or rs**. The `?` after the *\.* says that a `.` is optional.<br> 
+
+<img src = reg14.png> <br><br>
+
+To find the email addresses let's use `[a-zA-Z0-9.-]+@[a-zA-Z-]+\.(com|edu|net)`. <br>
+<img src = reg15.png><br><br>
+
+Here we added the `.co.za` address. The pattern: `[a-zA-Z0-9.-]+@[a-zA-Z-]+\.[a-zA-Z0-9.-]+` matches all emails.
+
+<img src = reg16.png> <br>
+
+11. We can group things, and then do cleanup using our groups. In the below we captured 3 groups, as well as an implicit group 0 which is the whole string that was matched. Here we are replacing the text with the text *Group 2: * followed by the captured group 2. Groups can be seperated by pipe characters which means OR - e.g. `( (egg) | (bacon) | (spam) | (and) )+` <br>
+
+Original: <br>
+<img src = reg19.png> <br>
+
+Replacement 1: <br>
+
+<img src = reg17.png> <br>
+
+Replacement 2: If we replace our urls with just the domain then we get the following: <br>
+
+<img src = reg18.png> <br>
+
+
+### Python Regex
+**2020-02-04**
+
+1. A raw string in Python is a string prefixed with an r''. It tells Python not to handle backslashes in any particular way and makes your regex pattern more readable. We should try and always pass the re.compile() method a raw string as `r'this is a \d raw string \n'`.
+
+2. Methods:
+
+    * The match() method only looks for if it can find the pattern you're looking for in the beginning of the string, or alternately matches an entire string so if you're looking for 810223 in a string surrounded by other info you would have to precede and succeed the pattern with wildcards like `r'.*\d{6}.*'`. 
+    * The search() method on the other hand looks everywhere in the string and returns the first match.
+    * The finditer() method returns all matches with additional metadata like where the match is in the string etc.
+    * The findall() method returns just the matches as a list. If you have groups in your regex, it will return all groups as tuples within the list. Put brackets `()` around the entire pattern string if you want the full match to be returned too.
+
+3. Match anything (from [Al Sweigart](https://www.youtube.com/watch?v=abrcJ9MpF60) talk) <br>
+
+    - use `.` to say match anything apart from the newline
+    - combined with *: `.*` which means match whatever
+    - .*? means match the least amount of whatever
+    
+```{python}
+import re
+
+text_to_search = '''
+abcdefghijklmnopqrstuvwxyz
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+1234567890
+
+cabc
+
+Ha HaHa
+
+MetaCharacters (Need to be escaped):
+.[{()\^$|?*+
+
+coreyms.com
+
+321-555-4321
+123.555.1234
+123*555*1234
+900-123-3444
+800-123-4564
+900-256-8922
+
+Mr. Schafer
+Mr Smith
+Ms Davis
+Mrs Robinson
+Mr. T
+
+CoreyMSchafer@gmail.com
+corey.schafer@university.edu
+corey-321-schafer@my-work.net
+test@some-domain.co.za 
+
+https://www.google.com
+http://coreyms.com
+https://youtube.com
+https://www.nasa.gov
+
+cat
+pat
+bat
+sat
+stat
+'''
+
+pattern = re.compile(r'abc')
+matches = pattern.finditer(text_to_search)
+for match in matches:
+    print(match)
+
+print(text_to_search[1:4], text_to_search[68:71])
+
+# find urls
+pattern_url = re.compile(r'\w+\.\w+')
+matches = pattern_url.finditer(text_to_search)
+for match in matches:
+    print(match)
+
+# match phone number
+# but note it is matching the * numbers, and the 12345..0!
+pattern_phone = re.compile(r'\d+.\d+.\d+')
+matches = pattern_phone.finditer(text_to_search)
+for match in matches:
+    print(match)
+
+# match phone number using character set
+pattern_phone_cs = re.compile(r'\d+[-.]\d+[-.]\d+')
+matches = pattern_phone_cs.finditer(text_to_search)
+for match in matches:
+    print(match)
+
+
+# match 800/900 phone number using character set
+pattern_phone_cs = re.compile(r'[89]00[-.]\d+[-.]\d+') # this says match 8 or 9 followed by 2 zero's!
+matches = pattern_phone_cs.finditer(text_to_search)
+for match in matches:
+    print(match)
+
+
+# match any 'at' word except bat
+pattern_at = re.compile(r'[^b]at') # this says match _at words except bat, but notice it says match a single letter then 'at'
+matches = pattern_at.finditer(text_to_search)
+for match in matches:
+    print(match)
+
+# notice stat was not matched    
+
+
+# quantifiers
+pattern_quant1 = re.compile(r'\d{3}[.-]\d{3}[.-]\d{4}') # matches numbers
+matches = pattern_quant1.finditer(text_to_search)
+for match in matches:
+    print(match)
+    
+# let's say I want to match the Ms, Mr etc.
+pattern_names = re.compile(r'M(r|s|rs)\.?\s\w*')
+matches = pattern_names.finditer(text_to_search)
+for match in matches:
+    print(match)
+    
+# match email addresses
+pattern_email = re.compile(r'[a-zA-Z0-9.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z.]+')
+matches = pattern_email.finditer(text_to_search)
+for match in matches:
+    print(match)
+    
+# capture groups from urls to use later
+pattern_url = re.compile(r'https?://(www\.)?(\w+)(\.\w+)')
+matches = pattern_url.finditer(text_to_search)
+for match in matches:
+    print(match.group(1)) # optional www
+    print(match.group(2)) # top level domain name
+    print(match.group(3)) # .com .co.za etc.
+    print(match.group(0)) # the entire match is implicitly group 0
+
+# we can use our groups to substitute other data into it
+# for example here we're saying wherever there is a match substitute that match with the
+# group 2 and group 3 we found - recall that in sublime this was $2$3 - in Python use \2\3
+subbed_urls = pattern_url.sub(r'\2\3', text_to_search)
+print(subbed_urls)
+
+
+# findall just returns the matches as a list, not the extra info as finditer does
+# or prints list of group(s) it is searching for if we have group(s). 
+pattern_all1 = re.compile(r'\d{3}[.-]\d{3}[.-]\d{4}')
+matches = pattern_all1.findall(text_to_search)
+print(matches)
+
+# return list of tuples -> the () around the whole group returns the matched string as one of
+# the values.
+pattern_all1 = re.compile(r'((\d{3})[.-]\d{3}[.-](\d{4}))')
+matches = pattern_all1.findall(text_to_search)
+print(matches)
+
+# The match method determines if the match is found in the beginning of the string
+# It only finds patterns at the BEGINNING of strings
+# So match checks behind the scenes ^Blah -> even though we call it as pattern = re.compile(r'Blah')
+sentence = 'Start a sentence and end it like such'
+pattern_match = re.compile(r'Start')
+matches = pattern_match.match(sentence)
+print(matches)
+
+# here we get None returned since end is not in the beginning of sentence
+sentence = 'Start a sentence and end it like such'
+pattern_match = re.compile(r'end')
+matches = pattern_match.match(sentence)
+print(matches)
+
+
+# to search anywhere in a string use the search() method! It returns the first match only though.
+sentence = 'Start a sentence and end it like such. What an ending!'
+pattern_match = re.compile(r'end')
+matches = pattern_match.search(sentence)
+print(matches)
+
+# Let's say we wanted to find the word start but we did not care what case the word is in ....
+# We'd then use flags - here we are using the IGNORECASE flag -> sometimes just used as I
+# Flags in all caps, and is NOT assigned to any bool!!
+sentence = 'StArt a sentence and end it like such'
+pattern_match = re.compile(r'start', re.IGNORECASE)
+matches = pattern_match.search(sentence)
+print(matches)
+
+# Match Japanese words
+sentence = 'sayonara'
+pattern = re.compile(r'([^aeiou][aeiou])+') # looking for any consanant followed by a vowel repeated over 
+match = pattern.finditer(sentence)
+for m in match:
+    print(m)
+    print(m.start())
+    print(m.end())
+    print(m.group())
+    
+test_str = 'I have 64,000,000 things on my todo list!'
+pattern = re.compile(r'\d{1,3}(,\d{3})*')
+match = pattern.search(test_str)
+print(match)
+
+# Match anything - greedy version wants longest bit of text
+sentence = 'Looking for text <in between angle brackets> dun dun dunnn>'
+pattern = re.compile(r'<.*>')
+matches = pattern.findall(sentence)
+print(matches)
+
+# Match the least amount of anything - non greedy versio finds smallest amt of text satisfying
+# match pattern
+sentence = 'Looking for text <in between angle brackets> dun dun dunnn>'
+pattern = re.compile(r'<.*?>')
+matches = pattern.findall(sentence)
+print(matches)
+```
+
+### TalkPython Videos
+
+#### When not to use a regex
+1. If you want to find out if the text starts with some values - just use `startswith()`.
+2. If you want to find out if the text ends with some values - just use `endswith()`.
+3. Want to check if some string is in the text? Just use `'xxx' in text`.
+4. Want to replace xxx with yyy? Just use `text.replace('xxx', 'yyy')`
+
+```{python}
+text = 'Awesome, I am doing the #100DaysOfCode challenge'
+# Does text start with Awesome ?
+text.startswith('Awesome')
+# Does text end with challenge ?
+text.endswith('challenge')
+# Does text contain '100daysofcode'? - case insensitive
+'100daysofcode' in text.lower()
+# What if I want to replace 100 with 200? Remember strings are immutable, so save to new string
+text2 = text.replace('100', '200')
+print(text2)
+print(f'Original string was: "{text}", new string with replacement is: "{text2}"')
+```
+
+
+```{python}
+import re
+text = 'Awesome, I am doing the #100DaysOfCode challenge'
+print(f"The search method looks if it can find substring anywhere in string: {re.search(r'I am', text)}")
+
+print(f"The match method looks if it can find substring at beginning of string: {re.match(r'I am', text)}")
+print(f"The match method looks if it can match beginning to end of string so use wildcards: {re.match(r'.*I am.*', text)}")
+
+hundred = 'Awesome, I am doing the #100DaysOfCode challenge'
+two_hundred = 'Awesome, I am doing the #200DaysOfCode challenge'
+
+# capture matching string
+# use the capturing parentheses - any regex inside the parentheses that
+# matches the string will be stored in a match object which we can access with groups
+# For match() we need to account for anything that comes before and after the pattern we
+# are looking for
+m = re.match(r'(.*#\d+daysofcode.*)', hundred, re.IGNORECASE)
+print(m.groups())
+print(m.groups()[0]) # to get the match out of the tuple returned
+
+m = re.search(r'(#\d+daysofcode)', hundred, re.IGNORECASE)
+print(m.groups())
+print(m.groups()[0]) # to get the match out of the tuple returned
+
+all_strs = hundred + two_hundred
+m = re.search(r'(#\d+daysofcode)', all_strs, re.IGNORECASE)
+print(m.groups())
+
+m = re.findall(r'(#\d+daysofcode)', all_strs, re.IGNORECASE)
+print(m)
+
+text = '''
+$ python module_index.py | grep ^re
+re                  | stdlib  | 005, 007, 009, 015, 021, 022, 068, 080, 081, 086, 095
+'''
+m = re.findall(r'\d+', text)
+print(m)
+```
+
+#### Findall
+
+```{python}
+text = """Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been 
+the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
+scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into 
+electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of
+Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
+PageMaker including versions of Lorem Ipsum"""
+print(re.findall(r'\w+', text))
+# alternate is to use split - does same as above
+print(text.split()[:5])
+
+# We want to find the most common words starting with an uppercase character
+upper_case = re.findall(r'[A-Z][a-z0-9]+', text)
+print(upper_case)
+
+# To get most common words - wrap in a counter
+from collections import Counter
+cnt = Counter(upper_case)
+print(cnt.most_common(3))
+```
+
+
+#### Compiling regexes
+If you want to run the same regex multiple times, say in a for loop it is best practice to define the regex one time using re.compile. <br>
+
+You can use `re.VERBOSE` which ignores spaces and comments in the pattern string so you can spread your pattern over several lines to make the pattern regex more readable. 
+
+```{python}
+movies = '''1. Citizen Kane (1941)
+2. The Godfather (1972)
+3. Casablanca (1942)
+4. Raging Bull (1980)
+5. Singin' in the Rain (1952)
+6. Gone with the Wind (1939)
+7. Lawrence of Arabia (1962)
+8. Schindler's List (1993)
+9. Vertigo (1958)
+10. The Wizard of Oz (1939)'''.split('\n')
+print(movies)
+
+# What if we want to find only movies with 2 words
+pattern = re.compile(r'''
+                      ^                           # start string (these comments are ignored)
+                      \d+                         # one or more digits
+                      \.                          # a . after the number 
+                      \s                          # a space
+                      [A-Za-z']+                  # a word
+                      \s                          # a space
+                      \w+                         # another word
+                      \s                          # a space
+                      \(                          # a bracket
+                      \d{4}                       # a year
+                      \)                          # a closing bracket
+                      $                           # end of string
+                      ''', re.VERBOSE)
+# matches = re.finditer(pattern, movies)
+for i in movies:
+    print(i, re.search(pattern, i))
+
+```
+
+#### String replacing
+
+```{python}
+text = '''Awesome, I am doing #100DaysOfCode, #200DaysOfDjango and of course #365DaysOfPyBites'''
+# I can replace the text 200 and 365 using the text.replace() but I will have to chain together
+print(text.replace('200', '100').replace('365', '100'))
+
+# re.sub() helps to make a more flexible replacement regex
+re.sub(r'\d+', '100', text)
+# This works better since if there were more numbers you needed to replace with '100'
+# you don't have to create this monster chain ... rather 1 small bit of code does the trick
+
+
+# What if I wanted all days to be 100 days of Python
+re.sub(r'(#\d+DaysOf)\w+', r'\1Python', text)
+```
+
+### Bite 2. Regex Fun
+Learn Python regular expressions by writing the following 3 functions.
+
+In each function's docstring we show the expected result.
+
+The tests verify these expected results when you hit Save + Verify. We will do a more ample regex bite later on.
+
+Note that for parsing HTML you would use a library of some sort, this is just to train your regex skills.
+```{python}
+import re
+
+COURSE = ('Introduction 1 Lecture 01:47'
+          'The Basics 4 Lectures 32:03'
+          'Getting Technical!  4 Lectures 41:51'
+          'Challenge 2 Lectures 27:48'
+          'Afterword 1 Lecture 05:02')
+TWEET = ('New PyBites article: Module of the Week - Requests-cache '
+         'for Repeated API Calls - http://pybit.es/requests-cache.html '
+         '#python #APIs')
+HTML = ('<p>pybites != greedy</p>'
+        '<p>not the same can be said REgarding ...</p>')
+
+
+def extract_course_times(course=COURSE):
+    """Return the course timings from the passed in
+       course string. Timings are in mm:ss (minutes:seconds)
+       format, so taking COURSE above you would extract:
+       ['01:47', '32:03', '41:51', '27:48', '05:02']
+       Return this list.
+    """
+    return re.findall(r'\d+:\d+', course)
+
+
+def get_all_hashtags_and_links(tweet=TWEET):
+    """Get all hashtags and links from the tweet text
+       that is passed into this function. So for TWEET
+       above you need to extract the following list:
+       ['http://pybit.es/requests-cache.html',
+        '#python',
+        '#APIs']
+       Return this list.
+    """
+    # http://pbreadinglist.herokuapp.com/books/
+    # http://pybit.es/requests-cache.html
+    # TvEqDAAAQBAJ#.XVOriU5z2tA.twitter
+    # pat = re.compile(r'''
+    #                   (
+    #                   # https?:[/]{2}[a-zA-Z0-9.-]+[/]?[a-zA-Z0-9.-]+[/]? |
+    #                   #\w*\#\.[a-zA-Z0-9]+\.\w+  |
+    #                   # [a-zA-Z0-9]+[/:.\#-]+\.?[a-zA-Z0-9./]+\w+[/]?[.-]?[a-zA-Z/]* |
+    #                   [a-zA-Z0-9\#]+[:./]+[a-zA-Z0-9.-]+[/]?[a-zA-Z.-]+[/]?|
+    #                   \#\w+
+    #                   )
+    #                   ''', re.VERBOSE)
+    # matches = re.findall(pat, tweet)
+    # matches_lst = []
+    # for tup in matches:
+    #     if tup[0] != '':
+    #         matches_lst.append(tup[0])
+    #     if tup[1] != '':
+    #         matches_lst.append(tup[1])
+    
+    pat = re.compile(
+        r"""
+                      [a-zA-Z0-9\#]+[:./]+[a-zA-Z0-9.-]+[/]?[a-zA-Z.-]+[/]?|
+                      \#\w+
+                      """,
+        re.VERBOSE,
+    )
+    matches = re.findall(pat, tweet)
+    #return matches
+    return re.findall(r'((?:#|http)\S+)', tweet)
+    
+
+print(get_all_hashtags_and_links())
+tweet = ('PyBites My Reading List | 12 Rules for Life - #books '
+         'that expand the mind! '
+         'http://pbreadinglist.herokuapp.com/books/'
+         'TvEqDAAAQBAJ#.XVOriU5z2tA.twitter'
+         ' #psychology #philosophy')
+print(get_all_hashtags_and_links(tweet))
+
+def match_first_paragraph(html=HTML):
+    """Extract the first paragraph of the passed in
+       html, so for HTML above this would be:
+       'pybites != greedy' (= content of first paragraph).
+       Return this string.
+    """
+    pattern = re.compile(r'<p>([a-zA-Z!\s=.]+)</p?>')
+    return re.search(pattern, html)[1]
+
+extract_course_times()
+match_first_paragraph()
+```
+
+##### Tests
+
+```{python}
+def test_extract_course_times_default_arg():
+    expected = ['01:47', '32:03', '41:51', '27:48', '05:02']
+    assert extract_course_times() == expected
+
+test_extract_course_times_default_arg()
+
+def test_extract_course_times_other_course_input():
+    course = ('00:40 Lesson introduction'
+              '01:33 Your 3 day overview'
+              '08:12 Learning datetime and date'
+              '06:07 Datetime timedelta usage'
+              '04:02 Concepts: what did we learn')
+    expected = ['00:40', '01:33', '08:12', '06:07', '04:02']
+    assert extract_course_times(course) == expected
+
+test_extract_course_times_other_course_input()
+
+def test_get_all_hashtags_and_links_default_arg():
+    expected = ['http://pybit.es/requests-cache.html', '#python', '#APIs']
+    assert get_all_hashtags_and_links() == expected
+
+test_get_all_hashtags_and_links_default_arg()
+
+def test_get_all_hashtags_and_links_other_tweet():
+    tweet = ('PyBites My Reading List | 12 Rules for Life - #books '
+             'that expand the mind! '
+             'http://pbreadinglist.herokuapp.com/books/'
+             'TvEqDAAAQBAJ#.XVOriU5z2tA.twitter'
+             ' #psychology #philosophy')
+    expected = ['#books',
+                ('http://pbreadinglist.herokuapp.com/books/'
+                 'TvEqDAAAQBAJ#.XVOriU5z2tA.twitter'),
+                '#psychology', '#philosophy']
+    assert get_all_hashtags_and_links(tweet) == expected
+
+test_get_all_hashtags_and_links_other_tweet()
+
+def test_match_first_paragraph_default_arg():
+    expected = 'pybites != greedy'
+    assert match_first_paragraph() == expected
+
+
+def test_match_first_paragraph_other_html():
+    html = ('<p>Match only this paragraph.</p>'
+            '<p>Not this one!</p><p>And this one neither.</p>')
+    expected = 'Match only this paragraph.'
+    assert match_first_paragraph(html) == expected
+
+
+```
