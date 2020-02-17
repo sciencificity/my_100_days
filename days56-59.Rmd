@@ -1,0 +1,344 @@
+---
+title: "Day56-57"
+author: "Data Analytics"
+date: "2020-02-13 to 2020-02-16"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Studying for MidTerm 1
+### Beginner Classes Recap
+
+```{python ch1}
+class Deck(object):
+    def shuffle(self):
+        import random
+        suits = ['Spades', 'Clubs', 'Diamonds', 'Hearts']
+        ranks = '2 3 4 5 6 7 8 9 10 Jack Queen King Ace'.split()
+        self.cards = []
+        for suit in suits:
+            for rank in ranks:
+                self.cards.append(rank + " of " + suit)
+        
+        random.shuffle(self.cards)
+    
+    def deal(self):
+        return self.cards.pop()
+    
+
+d = Deck()
+d.shuffle()
+print(d.deal())
+print(d.deal())
+print(d.deal())
+print(d.deal())
+
+```
+
+### Scrabble Cheater 
+As per Jessica McKellar who wrote this to combat her dad's cheating at scrabble! See the scrabble and cheater python files.
+
+```{python ch2}
+words_file = 'sowpods.txt'
+f = open(words_file, 'r')
+wordlist = f.readlines() # read all data from file
+# Remove new lines
+wordlist = [word.lower().strip() for word in wordlist]
+
+scores = {'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1,
+          'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8,
+          'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1,
+          'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1,
+          'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4,
+          'z': 10}
+```
+### Basic Data Types
+```{python ch3}
+# define a binary integer
+b = 0b10101011
+print(b) # prints as a decimal
+# define an octal integer
+o = 0o454312
+print(o)
+# define a hex number
+h = 0xac4d
+print(h)
+
+# Let's see how to represent the decimal number in different bases
+my_num = '1235'
+my_num = int(my_num)
+print(bin(my_num))
+print(oct(my_num))
+print(hex(my_num))
+
+# Triple quoted strings allow you to use " and ' inside the string without having to escape them
+# This makes the string more readable than having escapes, but it is also
+# great for preserving format of strings
+print("""This is 
+        a "triple-quoted string" and it causes no issues. 
+        
+        Neat 
+                ain't it?""")
+# NOTE: Triple quoted strings are mainly used as docstrings for functions
+
+# Need to find the distinct items in a list?
+a = [1,2,3,4,4,5,5,6,7,7,7,7,8,10,1]
+b = set(a)
+print(f'a is: {a} whereas b (the set version of a) is: {b}')
+# We can convert the set b to a list to use further
+c = list(b)
+print(f'The unique values is list a: {a} are {c}')
+
+# Math
+a = 15
+b = 4
+print(f'''{a} % {b} means {a} mod {b} and is: {a % b}, i.e. what's the remainder when we divide {a} by {b}''')
+
+a = 10
+b = 3
+print(f'''{a} % {b} means {a} mod {b} and is: {a % b}, i.e. what's the remainder when we divide {a} by {b}''')
+
+# divmod gives the quotient + the remainder in a tuple with the 1st num being the quotient, and
+# the second being the remainder
+a = 10
+b = 3
+print(f'''divmod({a},{b}) means give me the quotient and remainder from the division of
+{a} and {b} and is: {divmod(a, b)}''')
+
+# The characters used in Python are unicode - the dictionary of
+# allowed values is long
+# If you want to find out what is the character at place 67 for e.g.
+print(chr(65))
+print(chr(97))
+print(chr(98))
+print(chr(0x06a4))
+
+# On the flip side say you wanted to know at which spot a is you use ord()
+print(ord('a'))
+print(ord('A'))
+
+# Iterables
+a = [True, True, True]
+b = [True, False, True]
+c = [False, False, False]
+
+print(f'a is {a}, so any(a) is {any(a)}')
+print(f'b is {b}, so any(b) is {any(b)}')
+print(f'c is {c}, so any(c) is {any(c)}')
+
+print(f'a is {a}, so all(a) is {all(a)}')
+print(f'b is {b}, so all(b) is {all(b)}')
+print(f'c is {c}, so all(c) is {all(c)}')
+
+d = [1,5,7,3,4,8,9]
+print(reversed(d)) 
+
+# Notice how this is a iterator
+# To view the reversed list you can use list on the iterator
+print(list(reversed(d)))
+
+# enumerate
+players = ['Mike', 'Bob', 'Sarah', 'Charlie']
+
+for index, player in enumerate(players):
+    print(index, player)
+    
+# zip
+# we have 2 lists that needs to be paired together
+countries = ['France', 'Tanzania', 'Canada']
+continents = ['Europe', 'Africa', 'North America']
+
+merged = []
+for i in range(len(countries)):
+    merged.append((countries[i], continents[i]))
+
+print(merged)
+
+merged_2 = zip(countries, continents)
+print(merged_2)
+print(list(merged_2))
+
+# Print end arg
+# by default each print statement prints the value, and then a newline
+# we can amend so that the print does not end each print with a newline, but with something else
+# instead.
+for i in range(40):
+    print(i)
+
+for i in range(40):
+    print(i, end = ' ') # compare with this where we amend the end arg
+
+# Figuring out what methods something has
+a = 'hello'
+print(a.upper())
+
+dir(a) # print all methods and args for a string ...
+print(a.upper().center(50)) # Need to create a heading?
+
+a = 45
+b = 23
+
+def a_func():
+    a = 2
+    b = 'local'
+    print(a,b)
+    print(vars()) # what variables are available when I am here?
+
+print(f'The global vars a and b are {(a, b)}')
+print(f'The local vars a dn b are {a_func()}. We threw in what variables are available to us in that local scope too')
+#print(vars()) # - uncomment only if you're sure; very very long to run!! 
+#print(globals()) # in the global scope both vars() and globals() does the same # - uncomment only if you're sure; very very long to run!!
+
+# Want to see if the contents are the same for 2 objects?
+a = ['Test', 'Hash', 'with', 'some', 'strings']
+a_1 = ' '.join(a)
+a_2 = ' '.join(a)
+hash(a_1) == hash(a_2)
+
+a_2 += '  '
+hash(a_1) == hash(a_2)
+print(f'The hash of a_1 ("{a_1}") is {hash(a_1)}, while the hash of a_2 ("{a_2}") is {hash(a_2)}')
+```
+
+#### List less than 10
+```{python ch4}
+a = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+
+new_l = [item for item in a if item < 10]
+print(new_l)
+```
+
+#### List overlap
+```{python ch5}
+a = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+b = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+c = a + b
+set_c = set(c)
+new_l = list(set_c)
+print(new_l)
+```
+
+```{python ch6}
+import re
+DATA = "Hey, you - what are you doing here!? I figured you'd be in the States by now!"
+DATA  = DATA.lower()
+print(re.split(r"[.?!]", DATA))
+sentences = re.split(r"[.?!-]", DATA)
+sentences = [sentence.split() for sentence in sentences]
+print(sentences)
+
+import string
+# Python provides a constant called string.punctuation that provides a great list of punctuation characters. 
+print(string.punctuation)
+# Python offers a function called translate() that will map one set of characters to another.
+# We can use the function maketrans() to create a mapping table. We can create an empty mapping table, 
+# but the third argument of this function allows us to list all of the characters to remove during the translation process.
+table = str.maketrans('', '', string.punctuation)
+# split into words by white space
+split_sentences =[]
+for sentence in sentences:
+    splits = [word.translate(table) for word in sentence]
+    split_sentences.append(splits)
+print(split_sentences)
+split_sentences = [list_x for list_x in split_sentences if list_x]
+print(split_sentences)
+
+# We now want to make a sequential pairs dictionary. 
+sentdict = {}
+
+###
+### YOUR CODE HERE
+###
+
+def wordsD(myList):
+    myDict = {}
+    for i in range(len(myList)):
+        sublist = myList[i]
+        for j, word in enumerate(sublist):
+            if j > (len(sublist) - 2):
+                break
+            if word in myDict:
+                myDict[word].append(sublist[j+1])
+            else:
+                myDict[word] = [sublist[j+1]]
+    return myDict
+
+sentdict = wordsD(split_sentences)
+print(sentdict)
+
+hamsplits = [ ['i', 'love', 'georgia', 'tech'], ['gotta', 'love', 'python'] ]
+print(wordsD(hamsplits))
+
+```
+
+#### Rearrange the Number
+Given a number, return the difference between the maximum and minimum numbers that can be formed when the digits are rearranged.
+
+> rearranged_difference(972882) -> 760833 <br>
+> 988722 - 227889 = 760833 <br>
+<br>
+
+> rearranged_difference(3320707) -> 7709823 <br>
+> 7733200 - 23377 = 7709823
+<br><br>
+
+> rearranged_difference(90010) -> 90981 <br>
+> 91000 - 19 = 90981
+<br> <br>
+
+```{python ch7}
+def rearranged_difference(num):
+    str_num = str(num)
+    print(str_num)
+    list_num = sorted(list(str_num))
+    min_num = int(''.join(list_num))
+    max_num = int(''.join(reversed(list_num)))
+    return max_num - min_num
+
+rearranged_difference(76349)
+```
+
+#### Convert "Zero" and "One" to "1" and "0"
+Create a function that takes a string as an argument. The function must return a string containing 1s and 0s based on the string argument's words. If any word in the argument is not equal to "zero" or "one" (case insensitive), you should ignore it. The returned string's length should be a multiple of 8, if the string is not a multiple of 8 you should remove the numbers in excess
+
+
+> text_to_number_binary("zero one zero one zero one zero one") -> "01010101" <br>
+> 
+> text_to_number_binary("Zero one zero ONE zero one zero one")-> "01010101" <br> 
+> 
+> text_to_number_binary("zero one zero one zero one zero one one two") -> "01010101" <br>
+> 
+> text_to_number_binary("zero one zero one zero one zero three") -> "" <br>
+> 
+> text_to_number_binary("one one") -> "" <br>
+
+```{python ch8}
+def text_to_number_binary(txt):
+    txt = txt.lower()
+    list_txt = txt.split()
+    str_txt = ''
+    for ele in list_txt:
+        if ele == 'one':
+            str_txt += '1'
+        elif ele == 'zero':
+            str_txt += '0'
+    if len(str_txt) % 8 == 0:
+        return str_txt
+    else:
+        return str_txt[0:len(str_txt)-len(str_txt) % 8]
+        
+text_to_number_binary("zero one zero one zero one zero one")
+text_to_number_binary("Zero one zero ONE zero one zero one")
+text_to_number_binary("zero one zero one zero one zero one one two") 
+text_to_number_binary("zero one zero one zero one zero three")
+text_to_number_binary("one one")
+```
+
+```{python ch9}
+
+```

@@ -257,5 +257,49 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 ### Day 52 <2020-02-09>
 - Completed the regex assignments for the GTx course.
 
+### Day 53 <2020-02-10>
+- Learnt about the requests module and the Postman application which allows you to access an API and see what is returned in a non browser based environment.
+- With regards to requests the response.raise_for_status() method is pretty nifty in that calling it will halt your process if there was an unexpected response code. It all is okay your code will progress to the next step.
+    
+    resp = requests.get(url)<br>
+    # The response may be an error so we can't just work with the resp.text <br>
+    # we need to check if any error exists - there is a status code we could check<br>
+    # but raise_for_status() works better<br>
+    resp.raise_for_status() # if there is an error code returned this will stop process<br>
+
+### Day 54 <2020-02-11>
+- As an aside while learning about requests learnt about the `typing` module in Python. The module allows you to give Python a hint as to what is the expected output. For example `-> List(NamedTuple)` tells Python you're expecting a list of named tuple. Now in your calling code you can access named values in the list element in the ffg. manner:
+
+> for ele in movies:<br>
+> &emsp;print(f'{ele.movie_name} where the rating is {ele.rating}')<br>
+
+### Day 55 <2020-02-12>
+- Practised parsing a site. For example, if the site you are pulling down has tags with spaces in between the name - `<span class="review-count rating-qualifier">80 reviews</span>` (i.e. *review-count rating-qualifier*) when you look for it with bs4 use `.` in place of the spaces. To get the text (e.g. the *80 reviews* use `list_item.getText()`)
+
+> soup = bs4.BeautifulSoup(yelp_html, 'html.parser') <br>
+> html_header_list = soup.select(".review-count.rating-qualifier") # notice the . in place of the space <br>
+> review_list = []<br>
+> for item in html_header_list:<br>
+> &emsp;review_list.append(item.getText())<br>
+
+### Day 56 <2020-02-13>
+- Studied for upcoming exam. 
+- Triple quoted strings allow you to use both `"` and `'` within the body of text. If printed it preserves your formatting.
+
+### Day 57 <2020-02-14>
+- Studied for upcoming exam. 
+- Need to create a header in your code? The string object has a method called `center(width_of_str_after_centering)` that allows you to do this. Call using `str_name.center(100, 'x')` will place your string in the middle and surround it with x's.
+
+### Day 58 <2020-02-15>
+- Studied for upcoming exam. 
+- Want to check if the **contents** of two objects are the same? You can hash them and check if the hashes are equivalent. 
+
+### Day 59 <2020-02-16>
+- Studied for upcoming exam. 
+- Sometimes you're unpacking an iterable and you know you only want certain values. Python `star expressions` help here. Let's say you wanted to throw away the first and second lowest grades for the assignments you administered.
+
+> def drop_lowest_two(scores):<br>
+> &emsp;first, second, *rest = scores<br>
+> &emsp;return avg(rest)<br>
 
 

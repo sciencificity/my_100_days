@@ -1,0 +1,231 @@
+---
+title: "Day 53-55"
+author: "Data Analytics"
+date: "2020-02-10 to 2020-02-12"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Requests
+Learnt about the Postman App which may be downloaded from [here](https://www.postman.com/). You can check out the status of your request, and other things such as the headers etc. <br>
+For example for the test program setup for the course we can look up the search string *http://movie_service.talkpython.fm/api/search/water* and here's what the response looks like. <br>
+
+<img src = postman.png> <br>
+
+```{python r1}
+import requests
+import collections
+from typing import List
+
+# We're going to use a named tuple from collections 
+# We define this type that respresents a movie 
+# What is it's name? 'Movie'
+Movie = collections.namedtuple('Movie', 'imdb_code, title, director, keywords, duration,'
+                                        'genres, rating, year, imdb_score' )
+                                        
+                                      
+def find_movie_by_title(keyword: str) -> List[Movie]:
+    '''
+    We used type hint in Python here .... 
+    Python being dynamic means there is no syntactical typing, but you can give the editor
+    hints e.g. we can say hey `keyword` is actually a string - `keyword: str`
+    We can also say hey the return value is a list of Movie - `-> List[Movie]`
+    This hint allows you to type `r.` and python will show you a list of available functions
+    and attributes of r.
+    The List here is a part of the typing module so -> pip install typing
+    '''  
+    url = f'http://movie_service.talkpython.fm/api/search/{keyword}'
+    # print(url)
+    
+    resp = requests.get(url)
+    # The response may be an error so we can't just work with the resp.text 
+    # we need to check if any error exists - there is a status code we could check
+    # but raise_for_status() works better
+    resp.raise_for_status() # if there is an error code returned this will stop process
+    
+    # Otherwise we can just keep going
+    # print(resp.text)
+    
+    # We should convert the text in Python dictionaries so we can work with them
+    # We can use the json library in python but requests can actually help us convert this
+    results = resp.json()
+    # print(type(results), results)
+    
+    # Now we can return the json -> hits as in `return results.get('hits')`
+    # But this makes for a not-so-nice API; so how about we rather return 
+    # a list of the Movie type 
+    movies = []
+    for r in results.get('hits'):
+        # We need to append one of these movies
+        # Usually this would mean saying imdb_code = r.get('imdb_code'); title = r.get('title') etc.
+        # There is a way to unpack a dictionary back into keyword arguments with the names
+        # being the keys like imdb_code etc. -> we use **dict_name
+        movies.append(Movie(**r)) 
+        
+    return movies #results.get('hits')
+    
+# If at console we can do this:
+# keyword = input('Keyword of title search: >> ')
+# res2 = find_movie_by_title(res2)
+
+results = find_movie_by_title('maker')
+res_str = f'There are {len(results)} movies found.'
+print(res_str.center(100))
+for r in results:
+    print(f'Title: {r.title} has score {r.imdb_score}.') # can just use r.title, r.imdb_score since we have a named tuple
+
+```
+
+#### Python hints
+
+We used hints above to tell Python what the output type is expected to be - here a list of the namedtuple Movie. <br>
+
+> def find_movie_by_title(keyword: str) -> List[Movie]: <br>
+
+1. First: pip install typing
+2. Next in your script: from typing import List 
+3. In your function definition say you're expecting a return value of List like this `-> List(Movie)`
+4. Now in the place where you access the list item, because of this typing you get a list of attributes and methods available for a namedtuple of type Movie. 
+5. Now we can access named values of the tuple by typing `r.` - now we can see what does the Movie search yield in terms of json fields (which we converted to a dictionary). We can access `r.director` for example. <br> <br>
+
+<img src = python_hint.png><br>
+
+<img src = python_hint2.png><br>
+
+## Beautiful Soup 4
+
+BS4 is used for webscraping. We pull down the data using the `requests` module. Then we use BS4 to parse the data.  
+
+```{python ch1}
+import requests
+import bs4
+
+#### ------------- JUST FOR DEMONSTRATION ----------------- ####
+#### Don't do this usually - be kind to the page you're scraping 
+#### Put this in a diff script!!
+URL = 'https://pybit.es/pages/projects.html'
+
+def pull_site():
+  raw_page = requests.get(URL)
+  raw_page.raise_for_status()
+  return raw_page
+#### ------------- JUST FOR DEMONSTRATION ----------------- ####
+
+def scrape(site):
+  header_list = []
+  
+  soup = bs4.BeautifulSoup(site.text, 'html.parser')
+  html_header_list = soup.select('.projectHeader') # good for css which we have here
+  
+  for item in html_header_list:
+    header_list.append(item.getText())
+    
+  for header in header_list:
+    print(header)
+    
+# https://pybit.es/pages/challenges.html
+
+site = pull_site()
+scrape(site)
+
+```
+
+#### Public Service Announcement
+
+The pulling of the site should not really be in the script - the reason is that we don't want to submit a request to a site every time we want to scrape some data. Sites may not often change - if you keep requesting you're going to quickly spam the site, you might get blocked and you could quickly use their bandwidth limit (e.g. some sites can only withstand certain # of hits per minute). The best is to put the pull_site() function in a different script and run on some interval maybe. 
+
+### Another Day, Another Site
+Remember we should not just use `requests.get()` as we are doing here. But for our learning purposes we will continue.
+
+```{python ch2}
+import requests
+import bs4
+
+site = requests.get("https://pybit.es/pages/articles.html")
+site.raise_for_status()
+
+soup = bs4.BeautifulSoup(site.text, 'html.parser') # our page source reveals that there isn't any css
+# How do we find what we're looking for?
+# If we check the source we're looking for an unordered list or ul tag
+# The cool thing about BeautifulSoup is that we can use the tag name - here ul
+print(soup.ul)
+
+# Hhmm not quite what we were looking for .... 
+# Why is that?
+# soup.tag only responds with the first tag that it finds
+
+# Okay let's try the find_all() method
+# Hhmm we still get the other unordered lists
+# So let's try another way -> we see that the list we're interested in is in the main tag
+# and it is the only list there -> so we're going to look for soup.main.ul
+# obj = soup.find_all('ul')
+# print(obj)
+print(soup.main.ul)
+
+all_li = soup.main.find_all('li')
+
+for item in all_li:
+  print(item.string)
+
+```
+
+```{python ch3}
+import hashlib
+import bs4
+import lxml
+
+with open('yelp.htm', 'r', encoding='utf-8') as f:
+    yelp_html = f.read().encode(encoding='utf-8')
+    checksum = hashlib.md5(yelp_html).hexdigest()
+    assert checksum == "4a74a0ee9cefee773e76a22a52d45a8e", "Downloaded file has incorrect checksum!"
+    
+print("'yelp.htm' is ready!")
+
+with open('yelp.htm', 'r', encoding='utf-8') as yelp_file:
+    yelp_html = yelp_file.read()
+    
+# Print first few hundred characters of this string:
+print("*** type(yelp_html) == {} ***".format(type(yelp_html)))
+n = 1000
+print("*** Contents (first {} characters) ***\n{} ...".format(n, yelp_html[:n]))
+
+soup = bs4.BeautifulSoup(yelp_html, 'html.parser')
+html_header_list = soup.select('.indexed-biz-name') # good for css which we have here
+print(html_header_list)
+name_list = []
+for item in html_header_list:
+    name_list.append(item.getText())
+print(name_list)
+
+#soup1 = bs4.BeautifulSoup(yelp_html, 'lxml')
+html_header_list = soup.select(".review-count.rating-qualifier") # good for css which we have here
+print(html_header_list)
+review_list = []
+for item in html_header_list:
+    review_list.append(item.getText())
+print(review_list)
+
+html_header_list = soup.select(".business-attribute.price-range") # good for css which we have here
+print(html_header_list)
+price_list = []
+for item in html_header_list:
+    price_list.append(item.getText())
+print(price_list)
+
+```
+
+#### Aside: Checking a combination problem for a kid (programmatically)
+
+If you're given the numbers 0,1,2,...,10 how many different ways can you combine 3 cards to add to 12? 4 cards? 5 cards?
+```{python aside1}
+import itertools
+numbers = [0,1,2,3,4,5,6,7,8, 9, 10]
+result = [seq for i in range(len(numbers), 0, -1) for seq in itertools.combinations(numbers, i) if sum(seq) == 12]
+print(result)
+
+```
