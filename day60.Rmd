@@ -1,0 +1,267 @@
+---
+title: "day60"
+author: "Data Analytics"
+date: "2020-02-17"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Itertools
+
+When we say something is iterable we mean that you can move through it one item at a time. A for loop calls the iter dunder method behind the scenes (`__iter__`).
+
+```{python ch1}
+number = list(range(1, 11))
+number
+
+# To iterate over number we use a for loop
+# What is the for loop doing behind the scenes?
+# Behind the scenes the for loop is using the __iter__ method
+for i in number:
+    print(i)
+    
+# We can see that the iter method is available for number as follows
+'__iter__' in dir('number')
+    
+# Another way to use an iterable object is to use `next`
+it = iter('string')
+next(it)
+next(it)
+next(it)
+next(it)
+next(it)
+
+next(it)
+# next(it) # This next causes a StopIteration error 
+```
+
+### itertools.cycle()
+It keeps iterating over the item or series of items over and over again. It does not stop until something tells it to stop. Below is an example of itertools.cycle that makes a spinner. See the code in day60.py for the working example, which can be run at the terminal.
+
+```{python ch2, eval = FALSE}
+import itertools
+import sys
+import time 
+
+symbols = itertools.cycle('-\|/')
+
+while True:
+    sys.stdout.write('\r' + next(symbols))
+    sys.stdout.flush() # make sure it goes to screen
+    time.sleep(1) # sleep for 1 second
+
+```
+
+### itertools.product()
+This is short for Cartesian product. It is every possible combination of values. Let's say you had the name 'vebash' and we wanted to know how many different combinations of the letters we could get. `itertools.product()` calculates that exact thing for you. 
+
+```{python ch3}
+from itertools import product
+for letter in product('vebash', repeat = 1):
+    print(letter)
+
+for letter in product('vebash', repeat = 2):
+    print(letter)
+
+```
+
+### itertools.combinations()
+
+```{python ch4}
+from itertools import permutations, combinations
+
+friends = 'mike julian bob'.split()
+
+friends
+
+print(list(combinations(friends, 2))) # order does not matter
+
+print(list(permutations(friends, 2))) # order does matter, so all diff ways printed
+
+small = ['a', 'b']
+print(list(combinations(small, 2)))
+print(list(permutations(small, 2)))
+
+```
+
+### Bite 64. Fix a truncating zip function
+Bert is in charge of organizing an event and got the attendees names, locations and confirmations in 3 lists. Assuming he got all data and being Pythonic he used zip to stitch them together (see template code) but then he sees the output:
+
+> ('Tim', 'DE', False)
+> ('Bob', 'ES', True)
+> ('Julian', 'AUS', True)
+> ('Carmen', 'NL', False)
+> ('Sofia', 'BR', True)
+
+What?! Mike, Kim, and Andre are missing! You heard somebody mention [itertools](https://docs.python.org/3/library/itertools.html) the other day for its power to work with iterators. Maybe it has a convenient way to solve this problem? Check out the module and patch the get_attendees function for Bert so it returns all names again. For missing data use dashes (-). After the fix Bert should see this output:
+
+> ('Tim', 'DE', False)
+> ('Bob', 'ES', True)
+> ('Julian', 'AUS', True)
+> ('Carmen', 'NL', False)
+> ('Sofia', 'BR', True)
+> ('Mike', 'US', '-')
+> ('Kim', '-', '-')
+> ('Andre', '-', '-')
+
+
+```{python ch5}
+import itertools
+
+names = 'Tim Bob Julian Carmen Sofia Mike Kim Andre'.split()
+locations = 'DE ES AUS NL BR US'.split()
+confirmed = [False, True, True, False, True]
+
+# It was like below but because some lists are shorter than others the result is thrown away
+# def get_attendees():
+#     for participant in zip(names, locations, confirmed):
+#         print(participant)
+
+def get_attendees():
+  output = []
+  for participant in itertools.zip_longest(names, locations, confirmed, fillvalue='-'):
+    print(participant)
+    output.append(participant)
+  return output
+
+
+get_attendees()
+
+def test_get_attendees():
+    output = get_attendees()
+
+    assert len(output) == 8
+    #assert "('Kim', '-', '-')" in output
+    #assert "('Andre', '-', '-')" in output
+
+test_get_attendees()
+    
+```
+### Bite 17. Form teams from a group of friends
+Write a function called friends_teams that takes a list of friends, a team_size (type int, default=2) and order_does_matter (type bool, default False).
+
+Return all possible teams. Hint: if order matters (order_does_matter=True), the number of teams would be greater.
+
+```{python ch6, eval = FALSE}
+import pytest
+
+# Call at terminal
+# pytest -v day60_bites_itertools.py
+
+def friends_teams(friends, team_size:int = 2, order_does_matter:bool = False):
+    import itertools
+    if order_does_matter:
+        return list(itertools.permutations(friends, team_size))
+    else:
+        return list(itertools.combinations(friends, team_size))
+        
+friends = 'Bob Dante Julian Martin'.split()
+
+
+@pytest.mark.parametrize('test_input,expected', [
+    (('Bob', 'Dante'), True),
+    (('Bob', 'Julian'), True),
+    (('Bob', 'Martin'), True),
+    (('Dante', 'Julian'), True),
+    (('Dante', 'Martin'), True),
+    (('Julian', 'Martin'), True),
+    # order does not matter
+    (('Dante', 'Bob'), False),
+    (('Julian', 'Bob'), False),
+    (('Martin', 'Bob'), False),
+    (('Julian', 'Dante'), False),
+    (('Martin', 'Dante'), False),
+    (('Martin', 'Julian'), False),
+    # not with self
+    (('Julian', 'Julian'), False),
+])
+def test_team_of_two_order_does_not_matter(test_input, expected):
+    """First test lists all combos"""
+    combos = list(friends_teams(friends, team_size=2, order_does_matter=False))
+    assert len(combos) == 6
+    if expected:
+        assert test_input in combos
+    else:
+        assert test_input not in combos
+
+test_team_of_two_order_does_not_matter(test_input, expected)
+
+@pytest.mark.parametrize('test_input,expected', [
+    (('Bob', 'Dante'), True),
+    (('Dante', 'Julian'), True),
+    (('Dante', 'Martin'), True),
+    # order does matter
+    (('Dante', 'Bob'), True),
+    (('Julian', 'Dante'), True),
+    (('Martin', 'Dante'), True),
+])
+def test_team_of_two_order_does_matter(test_input, expected):
+    """From here on just test a subset of combos"""
+    combos = list(friends_teams(friends, team_size=2, order_does_matter=True))
+    assert len(combos) == 12
+    assert test_input in combos
+
+test_team_of_two_order_does_matter()
+
+@pytest.mark.parametrize('test_input,expected', [
+    (('Bob', 'Dante', 'Julian'), True),
+    (('Bob', 'Dante', 'Martin'), True),
+    (('Bob', 'Julian', 'Martin'), True),
+    (('Dante', 'Julian', 'Martin'), True),
+    # order does not matter
+    (('Dante', 'Bob', 'Martin'), False),
+    (('Julian', 'Martin', 'Dante'), False),
+    # no one goes twice
+    (('Dante', 'Dante', 'Martin'), False),
+])
+def test_team_of_three_order_does_not_matter(test_input, expected):
+    combos = list(friends_teams(friends, team_size=3, order_does_matter=False))
+    assert len(combos) == 4
+    if expected:
+        assert test_input in combos
+    else:
+        assert test_input not in combos
+
+test_team_of_three_order_does_not_matter()
+
+@pytest.mark.parametrize('test_input,expected', [
+    (('Bob', 'Dante', 'Julian'), True),
+    (('Bob', 'Dante', 'Martin'), True),
+    (('Bob', 'Julian', 'Martin'), True),
+    (('Dante', 'Julian', 'Martin'), True),
+    # order does matter
+    (('Dante', 'Bob', 'Martin'), True),
+    (('Julian', 'Martin', 'Dante'), True),
+])
+def test_team_of_three_order_does_matter(test_input, expected):
+    combos = list(friends_teams(friends, team_size=3, order_does_matter=True))
+    assert len(combos) == 24
+    assert test_input in combos
+    
+test_team_of_three_order_does_matter()
+
+```
+
+### Bite 65. Get all valid dictionary words for a draw of letters
+This Bite focusses on the use of itertools. To that extend you complete get_possible_dict_words and _get_permutations_draw to get all valid dictionary words for a random draw of 7 letters.
+
+This is fed into the tests that calculate the word with maximum value (work previously done for Bite 3) and there you go: you have a Scrabble cheat tool (Scrabble fans, pay attention or maybe skip this Bite!).
+
+For example a draw of letters G, A, R, Y, T, E, V would give highest valued word GARVEY (13 points).
+```{python ch7}
+
+
+```
+
+```{python ch8}
+
+```
+
+```{python ch9}
+
+```

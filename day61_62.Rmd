@@ -1,0 +1,493 @@
+---
+title: "Day 61 & 62"
+author: "Data Analytics"
+date: "2020-02-18 - 2020-02-19"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Given a string, find the length of the longest substring without repeating characters.
+
+Example 1:
+
+> Input: "abcabcbb"
+> Output: 3 
+> Explanation: The answer is "abc", with the length of 3. 
+
+
+Example 2:
+
+> Input: "bbbbb"
+> Output: 1
+> Explanation: The answer is "b", with the length of 1.
+
+
+Example 3:
+
+> Input: "pwwkew"
+> Output: 3
+> Explanation: The answer is "wke", with the length of 3. 
+>              Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
+
+
+
+```{python ch1}
+# Python program to find the length of the longest substring 
+# without repeating characters 
+NO_OF_CHARS = 256
+
+def lengthOfLongestSubstring(s: str) -> int:
+    
+    n = len(s) 
+    cur_len = 1       # To store the length of current substring 
+    max_len = 1       # To store the result 
+    prev_index = 0    # To store the previous index 
+    i = 0
+  
+    # Initialize the visited array as -1, -1 is used to indicate 
+    # that character has not been visited yet. 
+    visited = [-1] * NO_OF_CHARS 
+  
+    # Mark first character as visited by storing the index of 
+    # first character in visited array. 
+    visited[ord(s[0])] = 0
+  
+    # Start from the second character. First character is already 
+    # processed (cur_len and max_len are initialized as 1, and 
+    # visited[str[0]] is set 
+    for i in range(1, n): 
+        prev_index = visited[ord(s[i])] 
+  
+        # If the currentt character is not present in the already 
+        # processed substring or it is not part of the current NRCS, 
+        # then do cur_len++ 
+        if prev_index == -1 or (i - cur_len > prev_index): 
+            cur_len+= 1
+  
+        # If the current character is present in currently considered 
+        # NRCS, then update NRCS to start from the next character of 
+        # previous instance. 
+        else: 
+            # Also, when we are changing the NRCS, we should also 
+            # check whether length of the previous NRCS was greater 
+            # than max_len or not. 
+            if cur_len > max_len: 
+                max_len = cur_len 
+  
+            cur_len = i - prev_index 
+  
+        # update the index of current character 
+        visited[ord(s[i])] = i 
+  
+    # Compare the length of last NRCS with max_len and update 
+    # max_len if needed 
+    if cur_len > max_len: 
+        max_len = cur_len 
+  
+    return max_len 
+  
+# Driver program to test the above function 
+s = "aabceefghi"
+print ("The input string is " + s )
+l = lengthOfLongestSubstring(s) 
+print ("The length of the longest non-repeating character" +
+       " substring is " + str(l)) 
+
+```
+
+## Lists, Tuples, Sets, Dict deep dive
+
+### Lists
+
+* Lists are ordered - the order used when defining a list in maintained. This also means that lists with the same elements but in different orders are NOT the same. The order makes the list unique. 
+* Starts at index 0
+* Can do negative indexing e.g. lst[-1] gets the last item in list, lst[-2] gets the 2nd last etc.
+* Slicing lst[start, end] goes from index `start` to index `end - 1`
+* Omitting both indexes a[:] returns a copy of the entire list, but unlike with a string, it’s a copy, not a reference to the same object.
+* Want to add an item to the end of the list - Use `.append()`.
+* Want to add an item somewhere in the list - Use `.insert(index_to_insert_at, item)` - nothing gets overwritten, it just gets shifted from point of insertion.
+* Want to add the contents of one list to another list with it's own values? Use `extend()`. Using `.append()` OR `.insert()` DOES NOT do what you want here - recall that you can have list of lists so calling one of these methods will just add the list as a whole to the end of the original list, or to the place of insertion if using `insert()`.
+* Want to remove an item from a list - use `.remove(item_to_remove)`.
+* Want a stack or queue? Use `.pop(opt_index)` - it removes the last value of the list by default so it is great for usage as a queue (set index = 0 as in `.pop(0)`) or stack (default pop() removes an item from the back like a stack). It also returns the item to you so you can do something with it.
+
+#### Sorting lists IN PLACE
+
+All of these methods sort our list in place, which means that the original list is altered.
+
+* Want to reverse your list as it currently is? Use `lst.reverse()` OR `lst[::-1]` which also does the trick!
+* Sorting a list is as easy as calling `lst.sort()`. The list will be sorted in ascending order.
+* Sorting a list in descending order is as easy as calling `lst.sort(reverse = True)`. 
+* `.sort()` takes a `key` argument so for example we could apply a function that dictates the sorting. For example
+
+> lst = ['apple', 'Banana', 'Grape'] <br>
+> lst.sort(key = str.upper) # will sort the list as though the first letter is upper case for all values.
+
+#### What if we want a sorted list but we don't want to alter our original list?
+
+* Use `sorted(lst_name)` 
+
+#### Functions on lists
+
+* `min(lst)`, `max(lst)`, `sum(lst)` can all be called on lists.
+
+#### Looking for a particular value?
+
+* Use `lst.index('val_i_am_looking_for')` if you want to know the index of a value in the list.
+* Use `in` if you want to simply get a True or False back on whether an item is in the list.
+
+
+```{python ch2}
+itinerary = ['Spain', 'France', 'Italy', 'France']
+print(f'The original itinerary is: {itinerary}')
+itinerary.append('England')
+print(f'The new itinerary is: {itinerary}')
+itinerary.insert(2, 'Germany')
+print(f'The latest itinerary is: {itinerary}')
+places = ['Switzerland', 'Venice']
+it2 = itinerary.copy()
+it2.insert(0, places)
+print(it2)
+print(f'''The itinerary if I insert {places} into {itinerary} becomes {it2}.
+This is not what I expected! I wanted the contents of {places} to be added.''')
+print('That is where `extend` comes in ... ')
+itinerary.extend(places)
+print(f'The new itinerary after using .extend() is {itinerary} ')
+itinerary.remove('Germany')
+print(f'After removing an item using the `.remove(val_to_remove)` function, the itinerary is now {itinerary}')
+
+item = itinerary.pop() # pop() returns the item it popped to you
+print(f'After removing an item using the `.pop()` function, the itinerary is now {itinerary}')
+print(f'The value that was removed is {item}')
+
+print(f'Current list is: {itinerary}')
+itinerary.reverse()
+print(f'Reversed list is {itinerary}')
+
+nums = [1,7,6,3,4,5]
+nums.sort()
+
+print(nums)
+
+# Want to sort in reverse order
+nums.sort(reverse = True)
+print(nums)
+
+print(f'The sorted courses using the sorted function is: {sorted(itinerary)}')
+
+print(itinerary.index('France')) # if you look for something not in list you will get a ValueError
+
+print('Iceland' in itinerary)
+
+# convert our list to a string
+itinerary_str = ', '.join(itinerary)
+print(itinerary_str)
+```
+
+```{python ch3}
+x = ['a', ['bb', ['ccc', 'ddd'], 'ee', 'ff'], 'g', ['hh', 'ii'], 'j']
+print(x[0], x[2], x[4])
+
+a = [1,2,3,4,5]
+# You can grow the list by replacing an index with several items
+a[1:1] = [2,3,4] # I have to use slicing otherwise it will be entered as a sublist
+print(a)
+a[1] = [6,7,8] #Notice now what happens
+print(a)
+
+lst = ['apple', 'Banana', 'Grape']
+print(f'Original list is: {lst} ')
+lst.sort()
+print(f'New list is: {lst}')
+# print('''Hhmm not quite what we expected - why is banana before apple!? In Python the
+# ord(A) < ord(a) which means that upper case letters are before the lower case ones hence smaller.''')
+# we can say sort(key = str.upper) or (key = str.lower) to not care about case but rather which letter comes first
+lst.sort(key = str.lower)
+print(f'The list is now {lst}')
+
+lst = [2,4,6,2,4,6,2]
+x = lst.count(2)
+print(x)
+```
+
+```{python ch4}
+A = [2, 16, 26, 32, 52, 71, 80, 88]
+
+# These are already sorted:
+assert A == sorted(A)
+
+def contains(A, x):
+    """Returns True only if the value `x` exists in `A`."""
+    return x in A
+
+print("A contains 32: {}".format(contains(A, 32)))
+print("A contains 7: {}".format(contains(A, 7)))
+print("A contains -10: {}".format(contains(A, -10)))
+```
+
+```{python ch5}
+def ordered_contains(S, x):
+    # You may assume that `S` is sorted
+    last_ind = len(S) - 1
+    mid = int(last_ind/2)
+    print(S[mid])
+    print(x)
+    print(x == S[mid])
+    if (x == S[mid]):
+      return 1
+    elif (x < S[0]):
+      return 0
+    elif (x == S[0]):
+      return 1
+    elif (x > S[-1]):
+      return 0
+    elif (x == S[-1]):
+      return 1
+    # elif (x == S[mid]):
+    #     print('entered == s[mid]')
+    #     return 'The mid is returned'
+    elif ((x > S[mid]) and (mid > 0)):
+      print('entered > S[mid]')
+      A = S[mid+1:]
+      print(A)
+      return ordered_contains(A, x)
+    elif ((x < S[mid]) and (mid > 0)): 
+        # the x is either at 1st half or not at all
+      print('entered < S[mid]..... ')
+      A = S[:mid]
+      print(A)
+      return ordered_contains(A, x)
+    else:
+      return 0
+        
+# print("A contains 32: {}".format(ordered_contains(A, 32)))
+# print("A contains 7: {}".format(ordered_contains(A, 7)))
+# print("A contains -10: {}".format(ordered_contains(A, -10)))
+# print("\n(Did those results match the earlier example?)")
+S = [9, 26, 41, 47, 52, 57, 73, 74, 76, 91, 93, 94, 96]
+
+# print(ordered_contains(S, S[0]), contains(S, S[0]))
+# print(ordered_contains(S, S[0]-1), contains(S, S[0]-1))
+# print(ordered_contains(S, S[-1]), contains(S, S[-1]))
+# print(ordered_contains(S, S[-1]+1), contains(S, S[-1]+1))
+print(ordered_contains(S, 41), contains(S, 41))
+
+
+# Test cell: `test_is_correct` (1 point)
+
+# from random import randint, sample
+
+# def gen_list(n, v_max, v_min=0):
+#     return sample(range(v_min, v_max), n)
+
+# def gen_sorted_list(n, v_max, v_min=0):
+#     return sorted(gen_list(n, v_max, v_min))
+
+# def check_case(S, x):
+#     msg = "`contains(S, {}) == {}` while `ordered_contains(S, {}) == {}`!"
+#     true_solution = contains(S, x)
+#     your_solution = ordered_contains(S, x)
+#     assert your_solution == true_solution, msg.format(true_solution, your_solution)
+
+# for x in gen_list(50, 100, -100):
+#     print(f'S is {S}, x is {x}')
+#     check_case(S, x)
+# print("\n(Passed basic correctness checks.)")
+
+```
+
+### Tuples
+
+#### Fibonacci series using tuples
+```{python ch6}
+
+a, b = 0, 1
+
+while a < 10000:
+  print(a)
+  a,b = b, a+b
+
+```
+
+### Recursion
+Calls itself on a smaller version of itself.
+
+```{python ch7, eval = FALSE}
+def factorial_rec(n):
+  if n <= 1:
+    return 1
+  else:
+    return n * factorial_rec(n-1)
+    
+print(factorial_rec(5))
+
+```
+
+### Regex
+#### Problem 2: DNA Sequence Analysis
+This problem is about strings and regular expressions. It has four (4) exercises, numbered 0-3. They are worth a total of ten (10) points.
+
+```{python ch8}
+
+import re # You'll need this module
+dna_seq = 'ATGGCAATAACCCCCCGTTTCTACTTCTAGAGGAGAAAAGTATTGACATGAGCGCTCCCGGCACAAGGGCCAAAGAAGTCTCCAATTTCTTATTTCCGAATGACATGCGTCTCCTTGCGGGTAAATCACCGACCGCAATTCATAGAAGCCTGGGGGAACAGATAGGTCTAATTAGCTTAAGAGAGTAAATCCTGGGATCATTCAGTAGTAACCATAAACTTACGCTGGGGCTTCTTCGGCGGATTTTTACAGTTACCAACCAGGAGATTTGAAGTAAATCAGTTGAGGATTTAGCCGCGCTATCCGGTAATCTCCAAATTAAAACATACCGTTCCATGAAGGCTAGAATTACTTACCGGCCTTTTCCATGCCTGCGCTATACCCCCCCACTCTCCCGCTTATCCGTCCGAGCGGAGGCAGTGCGATCCTCCGTTAAGATATTCTTACGTGTGACGTAGCTATGTATTTTGCAGAGCTGGCGAACGCGTTGAACACTTCACAGATGGTAGGGATTCGGGTAAAGGGCGTATAATTGGGGACTAACATAGGCGTAGACTACGATGGCGCCAACTCAATCGCAGCTCGAGCGCCCTGAATAACGTACTCATCTCAACTCATTCTCGGCAATCTACCGAGCGACTCGATTATCAACGGCTGTCTAGCAGTTCTAATCTTTTGCCAGCATCGTAATAGCCTCCAAGAGATTGATGATAGCTATCGGCACAGAACTGAGACGGCGCCGATGGATAGCGGACTTTCGGTCAACCACAATTCCCCACGGGACAGGTCCTGCGGTGCGCATCACTCTGAATGTACAAGCAACCCAAGTGGGCCGAGCCTGGACTCAGCTGGTTCCTGCGTGAGCTCGAGACTCGGGATGACAGCTCTTTAAACATAGAGCGGGGGCGTCGAACGGTCGAGAAAGTCATAGTACCTCGGGTACCAACTTACTCAGGTTATTGCTTGAAGCTGTACTATTTTAGGGGGGGAGCGCTGAAGGTCTCTTCTTCTCATGACTGAACTCGCGAGGGTCGTGAAGTCGGTTCCTTCAATGGTTAAAAAACAAAGGCTTACTGTGCGCAGAGGAACGCCCATCTAGCGGCTGGCGTCTTGAATGCTCGGTCCCCTTTGTCATTCCGGATTAATCCATTTCCCTCATTCACGAGCTTGCGAAGTCTACATTGGTATATGAATGCGACCTAGAAGAGGGCGCTTAAAATTGGCAGTGGTTGATGCTCTAAACTCCATTTGGTTTACTCGTGCATCACCGCGATAGGCTGACAAAGGTTTAACATTGAATAGCAAGGCACTTCCGGTCTCAATGAACGGCCGGGAAAGGTACGCGCGCGGTATGGGAGGATCAAGGGGCCAATAGAGAGGCTCCTCTCTCACTCGCTAGGAGGCAAATGTAAAACAATGGTTACTGCATCGATACATAAAACATGTCCATCGGTTGCCCAAAGTGTTAAGTGTCTATCACCCCTAGGGCCGTTTCCCGCATATAAACGCCAGGTTGTATCCGCATTTGATGCTACCGTGGATGAGTCTGCGTCGAGCGCGCCGCACGAATGTTGCAATGTATTGCATGAGTAGGGTTGACTAAGAGCCGTTAGATGCGTCGCTGTACTAATAGTTGTCGACAGACCGTCGAGATTAGAAAATGGTACCAGCATTTTCGGAGGTTCTCTAACTAGTATGGATTGCGGTGTCTTCACTGTGCTGCGGCTACCCATCGCCTGAAATCCAGCTGGTGTCAAGCCATCCCCTCTCCGGGACGCCGCATGTAGTGAAACATATACGTTGCACGGGTTCACCGCGGTCCGTTCTGAGTCGACCAAGGACACAATCGAGCTCCGATCCGTACCCTCGACAAACTTGTACCCGACCCCCGGAGCTTGCCAGCTCCTCGGGTATCATGGAGCCTGTGGTTCATCGCGTCCGATATCAAACTTCGTCATGATAAAGTCCCCCCCTCGGGAGTACCAGAGAAGATGACTACTGAGTTGTGCGAT'
+print("=== Sequence (Number of bases: {}) ===\n\n{}".format(len(dna_seq), dna_seq))
+def count_bases(s):
+    assert type(s) is str
+    assert all([b in ['A', 'C', 'G', 'T'] for b in s])
+    ###
+    ### YOUR CODE HERE
+    ###
+    # Python3 code to demonstrate  
+    # each occurrence frequency using  
+    # collections.Counter() 
+    from collections import Counter 
+
+    # using collections.Counter() to get  
+    # count of each element in string  
+    res = Counter(s)
+    return dict(res)
+
+count_bases(dna_seq)
+
+# Test cell: `exercise_0_test`
+
+base_counts = count_bases(dna_seq)
+print("Your result:", base_counts)
+
+assert type(base_counts) is dict, "`base_counts` is of type `{}`, not `dict`.".format(type(base_counts))
+assert len(base_counts) <= 4, "There can be at most 4 bases."
+for b, c in [('A', 501), ('C', 507), ('G', 508), ('T', 496)]:
+    assert base_counts[b] == c, "Base '{}' has a count of {} when it should be {}.".format(b, base_counts[b], c)
+    
+print("\n(Passed!)")
+
+def bio_to_regex(pattern_bio):
+    ###
+    ### YOUR CODE HERE
+    ###
+    str_pattern = list(pattern_bio)
+    reg_str = r''
+    for letter in str_pattern:
+        if letter == 'R':   #     R: Either G or A
+            reg_str += r'[GA]'
+        elif letter == 'Y': #     Y: Either T or C
+            reg_str += r'[TC]'
+        elif letter == 'K': #     K: Either G or T
+            reg_str += r'[GT]'
+        elif letter == 'M': #     M: Either A or C
+            reg_str += r'[AC]'
+        elif letter == 'S': #     S: Either G or C
+            reg_str += r'[GC]'
+        elif letter == 'W': #     W: Either A or T
+            reg_str += r'[AT]'
+        elif letter == 'B': #     B: Anything but A (i.e., G, T, or C)
+            reg_str += r'[^A]'
+        elif letter == 'D': #     D: Anything but C
+            reg_str += r'[^C]' 
+        elif letter == 'H': #     H: Anything but G
+            reg_str += r'[^G]'    
+        elif letter == 'V': #     V: Anything but T
+            reg_str += r'[^T]'   
+        elif letter == 'N': #     N: Anything, i.e., A, C, G, or T
+            reg_str += r'[CAGT]'                
+        else:
+            reg_str += letter
+    return reg_str
+
+print(bio_to_regex('ARG'))
+print(re.search(bio_to_regex('ARYG'), 'AATGTCATA'))
+assert re.search(bio_to_regex('ANT'), 'AGATTA') is not None
+
+print(bio_to_regex('ANTAAT'))
+print(re.findall(bio_to_regex('ANTAAT'), dna_seq))
+print(re.findall(r'A[CAGT]TAAT', dna_seq))
+print(set(re.findall(bio_to_regex('ANTAAT'), dna_seq)))
+
+print(bio_to_regex('GCRWTG'))
+
+# Test cell: `exercise_1_test_0`
+
+assert re.search(bio_to_regex('ANT'), 'AGATTA') is not None
+assert set(re.findall(bio_to_regex('ANTAAT'), dna_seq)) == {'ATTAAT', 'ACTAAT'}
+assert set(re.findall(bio_to_regex('GCRWTG'), dna_seq)) == {'GCGTTG', 'GCAATG'}
+assert len(re.findall(bio_to_regex('CDCHA'), dna_seq)) == 18
+
+print("\n(Passed first group of tests!)")
+
+# Test cell: `exercise_1_test_1`
+if False:
+    for c in {'Y', 'K', 'M', 'S', 'B', 'D', 'V'}:
+        from random import sample
+        x = ''.join([sample('ACGT', 1)[0] for _ in range(2)])
+        y = ''.join([sample('ACGT', 1)[0] for _ in range(2)])
+        pattern = '{}{}{}'.format(x, c, y)
+        ans = set(re.findall(bio_to_regex(pattern), dna_seq))
+        print("assert set(re.findall(bio_to_regex('{}'), dna_seq)) == {}".format(pattern, ans))
+        
+assert set(re.findall(bio_to_regex('GABAT'), dna_seq)) == {'GACAT', 'GAGAT', 'GATAT'}
+assert set(re.findall(bio_to_regex('GAVCA'), dna_seq)) == {'GACCA', 'GAACA'}
+assert set(re.findall(bio_to_regex('TGYGG'), dna_seq)) == {'TGTGG', 'TGCGG'}
+assert set(re.findall(bio_to_regex('GCKAA'), dna_seq)) == {'GCGAA'}
+assert set(re.findall(bio_to_regex('ATSCA'), dna_seq)) == {'ATCCA'}
+assert set(re.findall(bio_to_regex('GCMTT'), dna_seq)) == {'GCCTT', 'GCATT'}
+assert set(re.findall(bio_to_regex('AGDCC'), dna_seq)) == {'AGTCC', 'AGACC'}
+
+print("\n(Passed second set of tests!)")
+```
+
+```{python ch9, eval = FALSE}
+def sim_cuts(site_pattern, s):
+    ###
+    ### YOUR CODE HERE
+    ###
+    patterns = site_pattern.split('|')
+    print(patterns)
+    pat_lst = []
+    lens = []
+    for pattern in patterns:
+      pat_to_add = bio_to_regex(pattern)
+      pat_lst.append(pat_to_add)
+      lens.append(len(pat_to_add))
+    print(pat_lst)
+    print(lens)
+    new_str = ''
+    patt_comb = ''.join(patterns)
+    print(patt_comb)
+    converted_pat = bio_to_regex(patt_comb)
+    print(converted_pat)
+    er = re.compile(r'('+converted_pat+r')')
+    matches = er.sub(r'\1|', s)
+    print(matches)
+    er = re.compile(r'\|')
+    print(er.findall(matches))
+    new_str = ''
+    for sym in er.finditer(matches):
+      start = sym.start()
+      end = sym.end()
+      print(f'Start is {start}, End is {end}')
+      if new_str == '':
+        new_str += matches[0:start-lens[1]] + r'\|' + matches[start-lens[1]:start]
+        print(f'in first if....start is {start}')
+        lst_ind = start
+      else:
+        new_str += matches[lst_ind+1:start-lens[1]] + r'\|' + matches[start-lens[1]:start]
+        print(f'in else now ..... start is now {start}')
+        lst_ind = start
+      
+    if lst_ind < len(matches):
+      new_str += matches[lst_ind+1:len(matches)]
+    print(new_str) 
+    return new_str.split(r'\|')
+      
+
+#['GCATAGT', 'AATGTATT', 'AATGGC']
+print(sim_cuts('ANT|AAT', 'GCATAGTAATGTATTAATGGC'))
+
+
+
+```

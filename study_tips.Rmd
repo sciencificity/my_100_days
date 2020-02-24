@@ -1,0 +1,62 @@
+---
+title: "Study Tips"
+author: "Data Analytics"
+date: "20/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Primary Study Objectives:
+1. Learn how to break down a problem
+
+    * What is the input?
+    * What do I need to do to it?
+    * How do I go about doing that?
+    * What’s the output?
+
+2. Learn how to implement a solution in Python
+
+    * Break down the problem and write pseudocode
+    * Systematically replace the pseudocode with actual code
+    * Consider what the most efficient solution is
+    * What way are you most comfortable with?
+
+3. Master debugging
+    
+    * Learn how to use asserts and prints to self-debug
+    * Setup checks at the appropriate points so you know where the error is
+
+4. Take notes
+
+    * Know what you don’t know—what topics are you weak on?
+    * How are you going to address them?
+    * What resources will help do that?
+    
+### Secondary Study Objectives:
+      
+
+1. Understand how to use your time effectively when there’s a time limit:
+
+    * Prepare all of your resources ahead of time. See list below for recommended list of things to have ready before you even start proctoring.
+    * Maximize your points—struggling? Skip the problem if you can.
+
+2. Get a better idea of the common pitfalls that may affect you:
+
+    * Don’t overthink it—tricking you is not a goal
+    * A bad indent can be just as fatal as using the wrong methodology
+    * Don’t worry about what’s more “pythonic”. If it passes it passes
+    * Don’t underestimate the power of taking a 5 minute breather. A clear mind is often more effective than sitting there and getting frustrated for another 5 minutes
+    * Read the entire problem. The wording is very precise intentionally. Trying to save 30 seconds may results in you spending an extra 30 minutes debugging.     
+
+#### Things to have easily accessible or open before you start proctoring:
+     
+1. Notebook Solutions
+1. Practice Problem Solutions
+1. Personal notes
+1. IDE of your choice (optional)
+1. Code assist tools: pythontutor.com (optional)
+1. Notepad++ (to dump code snippets and for you to backup your code)
+1. Any other resources you found helpful
+1. Print out some of these cheat sheets and paste them around your work areas (ehmatthes-github). You’re probably fairly comfortable with everything on there, but saving time anywhere is helpful.

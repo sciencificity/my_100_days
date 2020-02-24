@@ -303,3 +303,39 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 > &emsp;return avg(rest)<br>
 
 
+### Day 60 <2020-02-17>
+- Studied for exam
+- Learnt about `termcolor` module to use colour in the console. Used it in conjunction with the `itertools.cycle()` to simulate a traffic light as an exercise. `itertools.cycle()` keeps iterating over the item or series of items over and over again. It does not stop until something tells it to stop.
+
+> from termcolor import colored <br>
+> colours = [] <br>
+> colours.append(colored('red     ', 'red')) <br>
+> colours.append(colored('green   ', 'green')) <br>
+> colours.append(colored('yellow  ', 'yellow')) <br>
+> cols = itertools.cycle(colours) <br>
+
+- Also learnt about itertools combinations(order does not matter, so it produces only one set of options) and permutations (order does matter so all different ways the values can appear will be listed).
+
+> small = ['a', 'b'] <br>
+> from itertools import permutations, combinations <br>
+> print(list(combinations(small, 2)))<br>
+>&emsp;&emsp; [Out]: [('a', 'b')] <br>
+> print(list(permutations(small, 2)))<br>
+>&emsp;&emsp; [('a', 'b'), ('b', 'a')] <br>
+
+### Day 61 <2020-02-18>
+- Studied for exam
+- Deep dive into lists, tuples, dictionaries and sets.
+- Did you know that in the `list.sort()` method you can specify a function. For example, let's say you have a list of strings with different cases (some start with a lower case, some start with an upper case) but you just want to sort alphabetically or in reverse alphabetically - you can specify the `list.sort(key = str.lower)` to say treat all values as having a first letter which is lower then sort the list. 
+
+### Day 62 <2020-02-19>
+- Studied for exam
+- Deep dive into lists, tuples, dictionaries and sets.
+
+### Day 63 <2020-02-20>
+- Studied for exam
+- Regex exercises
+- Learnt about recursion
+
+### Day 64 <2020-02-21>
+- Learnt about sets
