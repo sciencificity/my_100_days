@@ -1,0 +1,246 @@
+---
+title: "Days 73 - 78"
+author: "Data Analytics"
+date: "2020-03-01 to 2020-03-08"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load and Look
+
+```{python}
+import pandas as pd
+# gapminder is a tsv file, so we have to specify a separator which is the tab
+gm_tbl = pd.read_csv("gapminder.tsv", sep = '\t') 
+print(gm_tbl.head())
+print(type(gm_tbl))
+gm_tbl.shape
+gm_tbl.columns # List of column names
+gm_tbl.dtypes # data type of each col
+gm_tbl.info() # method not attribute, number of items we have, num non-null items, type of obj
+```
+
+## Closer look
+### Column extraction / slicing
+
+```{python}
+gm_tbl['country'].head() # Look at first few cols
+gm_tbl.country.head() # does the same as above, convenient . notation
+subset = gm_tbl[['country', 'continent', 'year']] # subset on multiple cols - because we want multiple cols we need double [[]]
+# the outer square brackets are for subsetting, and the inner square brackets is the list of cols we want to
+# subset by 
+subset.tail()
+# we can also subset the cols by number - although name is better - we can't actually do this here,
+# maybe old version of python?
+# subset1 = gm_tbl[[0]] # 2nd col - does not work
+# gm_tbl[['country', 'continent']] # this works
+subset1 = gm_tbl.iloc[:, [1]]
+subset1.head()
+
+subset2 = gm_tbl.iloc[:, [0, -1]]
+subset2.head()
+```
+```{python}
+# We can specify the integer values 
+range(5)
+small_range = list(range(5)) # change into a list
+subset = gm_tbl.iloc[:,small_range]
+
+
+# we want cols 3-5?
+small_range = list(range(3,6))
+subset = gm_tbl.iloc[:,small_range]
+subset.head()
+
+# we can also use the range func to pick steps of data
+# we want the cols 0 to 5 inclusive but every other col
+small_range = list(range(0,5,2)) # 2 = step size
+subset = gm_tbl.iloc[:, small_range]
+subset.head()
+```
+
+### Row extraction / slicing
+
+* `df.loc[index]`: Pull out index of our data
+
+    - DOES NOT WORK!!! .loc[-1] ... throws a `KeyError` ... Why? Well python is looking for the index named '-1' which does not exist! 
+    - So what do I do if I want the last row of my data? Use the `df.shape()[0] - 1` attribute to get the number of rows and subtract 1 to get index of last row (since we use 0 indexing in Python).
+    - Another way would be to use `df.tail(n=1)` i.e. use the `.tail()` method and tell it to return 1 row the last row :).
+    - Notice how the return of `loc` and `tail` are different? What's up with that? If you see below `loc` returns a series, while `tail` returns a dataframe.
+    
+    
+*
+
+When we call `.head()` notice that the first element is 0,1,2,... This unnamed column is called the row index. In our case it is numbers but sometimes we can have named indices. E.g. in `mtcars` in R it will be `audi` etc. 
+```{python}
+gm_tbl.head()
+gm_tbl.loc[0] # contents of the 1st row of our data
+# what if we want the 100th row? python starts counting at 0, so use 99
+gm_tbl.loc[99]
+
+# Could we get the last row of our data by using -1?
+# Unfortunately not, there is no such index named -1 so Python
+# will throw an error if we tried df.loc[-1]
+last_row = gm_tbl.shape[0] - 1
+gm_tbl.loc[last_row]
+
+gm_tbl.tail(n=1)
+
+type(gm_tbl.loc[last_row]) # series
+type(gm_tbl.tail(n=1)) # df returned
+
+print(gm_tbl.loc[[0, 99, 999]]) # looks for name 0, name 99 etc.
+print(gm_tbl.iloc[[0, 99, 999]]) # Looks for row index 0, 99, 999
+
+# Subset rows and cols
+print(gm_tbl.loc[42, 'country']) # loc looks by name
+print(gm_tbl.iloc[42,0]) # iloc looks by index number so integer
+
+```
+
+### EDA Part I
+So let's say I want to know the average life expectancy for all countries across each of the year's - how would I do that?
+
+```{python}
+grouped_year_df = gm_tbl.groupby('year')
+# ['lifeExp'].mean()
+print(grouped_year_df) # nothing printed
+print(type(grouped_year_df)) # notice it is a grouped df!
+grouped_year_df_lifeExp = grouped_year_df['lifeExp']
+print(type(grouped_year_df_lifeExp)) # notice now it is a grouped series!
+grouped_year_df_lifeExp.describe()
+grouped_year_df_lifeExp.mean()
+```
+
+We notice that life expectancy is getting better as time goes on.
+
+- `df.groupby('some_col')`: Takes a column, splits by unique values in that column
+    
+    * Notice that the grouped data when printed prints nothing really just some info on the variable
+    * Notice also that by doing this when we perform calcs on it pandas knows it is a grouped data frame 
+- Next we apply a calculation on each subset we found. In our case we want to find the mean of life expectancy. `['lifeExp'].mean()`
+
+Okay now say we want the average life expectancy and average GDP for each year. 
+```{python}
+print(gm_tbl.groupby(['year', 'continent'])[['lifeExp', 'gdpPercap']].mean())
+
+# How many observations do we have for each continent?
+print(gm_tbl.groupby('continent')['country'].nunique())
+
+# Average lifeExp across all years?
+global_yearly_lifeExp = gm_tbl.groupby('year')['lifeExp'].mean()
+print(global_yearly_lifeExp)
+```
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+plt.plot(global_yearly_lifeExp)
+plt.show()
+```
+
+```{python}
+scientists = pd.read_csv("scientists.csv")
+print(scientists.head(10))
+
+print(scientists['Born'].dtype)
+# Boolean indexing / filter -> mask
+print(scientists[scientists['Age'] > scientists['Age'].mean()])
+
+# Convert the object Born and Died to datetime
+
+scientists['born_dt'] = pd.to_datetime(scientists['Born'], 
+                            format = '%Y-%m-%d') #YYYY-MM-DD format currently
+print(scientists['born_dt'].dtype)
+
+print(scientists['Died'].dtype)
+scientists['died_dt'] = pd.to_datetime(scientists['Died'], 
+                            format = '%Y-%m-%d')
+print(scientists['died_dt'].dtype)
+
+# To make a new copy you have to use the copy method
+scientists_copy = scientists.copy()
+print(scientists_copy.head(10))
+
+# shuffle data
+import random
+random.seed(42)
+scientists.Age
+random.shuffle(scientists['Age']) # shuffles any container - inplace
+scientists.Age
+
+scientists['ages_days_dt'] = scientists['died_dt'] - scientists['born_dt']
+scientists
+scientists['ages_years_dt'] = scientists['ages_days_dt'].astype('timedelta64[Y]')
+scientists
+```
+
+We see we must be careful - here we changed ages when we should not have! But it's okay since we created the age from the Born and Died dt vars.
+
+
+### Saving data out
+
+1. Pickle: A binary format within Python that is a serialized version of the object. You can think of this as a file that only Python can read and understand. The benefits of this is it's fast to write, it's faster to read, but you kind of lose the flexibility of emailing it to other people who don't have Python installed. 
+
+    * We want to write out a pickle file the method will be called `to_pickle`. This method takes a string that represents where the file is to be saved.
+    * Just like `read_csv` there's a similar function called `read_pickle` in pandas.
+
+2. Tab seperated file: Our first example, with the gapminder data set used a tab delimited file or TSV. To create tab delimited files we use the same command `to_csv` except this time, we have to provide a `separator (sep)` argument. Just like how we told `read_csv` that the file contained tabs we now have to say to CSV that we want the delimiter by tabs. We will also change the file extension from csv to tsv just so we know by looking at the file name what's in here.
+
+3. Excel Files: If you're trying to save a series object into an Excel file you first have to convert the series into a data frame. We can convert a series into a data frame by using the `to_frame` method. Now that we have a data frame for our series we can use the `to_excel` function to write an Excel file. Just like the other **to_like** functions we simply provide the location and file name of where we want this file to be saved. Finally, if you want to give the Excel, a sheet, a specific sheet name you can do so in the `to_excel` method - provide the `sheet_name` attribute. You'll notice that if you've been saving these files and opening them up that the unlabeled column (the row name /the index) is also being provided. You can remove that column by providing the `index=False` parameter in `to_excel`.
+
+### Plotting
+
+```{python}
+import seaborn as sns
+anscombe = sns.load_dataset('anscombe')
+print(type(anscombe))
+print(anscombe.head(15))
+# We see there's a dataset number, an x and a y
+anscombe_subset = anscombe.loc[anscombe['dataset'] == 'I']
+anscombe_subset
+```
+
+```{python}
+
+```
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+```{python}
+
+```
+```{python}
+
+```
+```{python}
+
+```
+```{python}
+
+```

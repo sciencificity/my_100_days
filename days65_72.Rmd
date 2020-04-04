@@ -1,0 +1,598 @@
+---
+title: "Day 65-72"
+author: "Data Analytics"
+date: "2020-02-22 - 2020-02-29"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Numpy
+
+What's nice about numpy? If we have 2 lists to multiply them we need to make a loop and loop over the lists to do item 0 of first list * item 0 of list two add them together with rest of item multiplications done in this way. On paper we'd just write list_1 * list_2. Numpy allows us to do just that.
+
+```{python}
+from numpy import *
+a = array([1,2,3,4])
+b = array([2,3,4,5])
+print(f'a + b is {a + b}')
+print(f'a * b is {a * b}')
+print(f'a ** b (i.e. a to the power b) is {a ** b}')
+print(pi)
+print(f'''Matrix multiplication is also easy using a.dot(b): {a.dot(b)}
+OR the @ operator a @ b: {a @ b}''')
+print(f'''Divide them a / b {a/b} ... 
+floating point div is default in Python 3, 
+whereas integer div was the norm in Python 2''')
+
+# Multiply by a constant - numpy will take care of applying this to
+# every single item of the array
+print(f'Multiply array a by some constant 5. a is {a}, a * 5 is {a * 5}')
+```
+
+### UFunc
+
+```{python}
+sin_arr = array([0, pi/4, pi/2, pi*3/4, pi, pi * 5/ 4, 3 * pi / 2, pi * 7 / 4, 2 * pi])
+print(f'''sine can be called using sin(arr): {sin(sin_arr)}''')
+from matplotlib import pyplot as plt
+plt.plot(sin(sin_arr))
+plt.show()
+```
+
+## Aside: Matplotlib 
+
+```{python}
+# create an array of linearly spaced values from 0 to 2 * pi
+# create 50 of these elements - linspace comes from numpy
+x = linspace(0, 2 * pi, 50)
+plt.plot(sin(x))
+plt.show()
+
+# Matplotlib supports pairs of data
+# so you can have multiple graphs by supplying x,y,x,y,x,y,....,x,y for
+# however many graphs you want to put on one axis
+plt.plot(x, sin(x),
+     x, sin(2 * x))
+plt.show()
+
+# Add markers and colours
+plt.plot(x, sin(x), 'b-o', # b-o blue solid with circles
+     x, sin(3 * x), 'r-^') # r-^ red solid with upward triangles
+plt.show()
+
+# Simple scatter plot
+x = linspace(0, 2 * pi, 50)
+y = sin(x)
+plt.scatter(x, y)
+plt.show()
+
+# Colour mapped scatter
+x = random.rand(200)
+y = random.rand(200)
+size = random.rand(200) * 30
+color = random.rand(200)
+plt.scatter(x,y,size, color)
+plt.colorbar()
+plt.show()
+
+# Plot in one plot with 2 sets of axes
+x = array([1,2,3,2,1])
+y = array([1,3,2,3,1])
+# To divide the plotting area, we create subplot
+plt.subplot(2, # number of rows - here 2
+            1, # number of cols - here 1
+            1) # index of which area is active now, note NOT 0 indexed but index at 1
+plt.plot(x)
+plt.subplot(2, # number of rows - here 2
+            1, # number of cols - here 1
+            2) # index of which area is active now
+plt.plot(y)
+plt.show()
+
+# The default behaviour is that figures are held on a plot - keeps holding onto
+# previous figure and add a line 
+# If you don't really want to keep adding lines on same figure
+# and you also don't want to create multiple figures there is a 
+# function called hold() that takes a boolean. If set to False, it will clear out the 
+# figures on the plot a replace with latest
+# hold(False)
+
+# Label you plots as you create them to make the legend call easier
+x = linspace(0, 2 * pi, 50)
+plt.plot(sin(x), label = 'sin')
+plt.plot(cos(x), label = 'cos')
+plt.xlabel('radians')
+plt.ylabel('amplitude', fontsize = 'large')
+plt.title('Sin(x) and Cos(x)')
+plt.legend() # uses the label attr to add a legend for your plot
+plt.grid() # displays gridlines on plot
+plt.show()
+
+# The above is better than remembering in which order you plotted things.
+# The below works, but you have to recall in which order you plotted things
+plt.plot(sin(x))
+plt.plot(cos(x))
+plt.legend(['sin', 'cos'])
+plt.show()
+
+# Clear a figure
+# Use clf()
+
+# Close a figure
+# Use close() - this closes current figure
+
+# Close all figures
+# close('all')
+
+# Image show
+# Get face image from scipy
+from scipy.misc import face
+img = face() # 3D arrays of RGB channels
+
+# Display image with the jet colormap and setting x & y extents
+# of the plot
+plt.imshow(img) 
+plt.show()
+
+plt.imshow(img ,
+           extent = [-25,25,-25,25],
+           cmap = plt.bone())
+
+plt.colorbar()
+plt.show()
+
+
+# Histogram
+plt.hist(random.randn(1000))
+plt.show()
+
+# change bins
+plt.hist(random.randn(1000), bins = 30)
+plt.show()
+```
+
+### More Numpy
+
+```{python}
+import numpy as np
+a = np.array([1,2,3,4])
+a
+type(a)
+a.dtype # the type of the eles in the array
+a.itemsize # in bits
+a.size # number eles in array - does not tell you how many rows / cols
+a.shape # will use this often
+c = np.array([[1,2,3],
+           [4,5,6]])
+c.shape
+c.nbytes # if concerned about memory usage
+c.ndim # number of dimensions
+c.itemsize
+
+a # array a?
+a[0] # get 1st item
+a[0] = 100 # amend 1st item
+a # what is array now?
+
+# Maybe a is some sort of buffer that we wanted to reinitialise
+a.fill(0) # sets all values in an array inplace to 0
+a
+a[:] = 1 # also works but it is slower
+a
+a.fill(2.31) # a is an integer array though so this will be coerced to int
+a
+
+
+a = a.astype('float') # change the datatype of a
+a.fill(5.451) # now a is a float array so the fill is not coerced
+a
+
+# Slicing
+# [lower:upper:step_size]
+# start at lower go up to index upper -1
+a[1:3]
+a[1:-2] # drop 1st one, and drop last two
+a[:3] # grab the 1st 3 eles
+a[-2:] # grab last 2 eles
+a[::2] # go thru all, and give me every 2nd ele
+```
+
+### More Numpy Part II
+
+```{python}
+r = arange(6).reshape(2,3)
+r
+r[1,1]
+r[-1,-1]
+r[1, 1:]
+# if you have a 1D array and you index you get a value
+a[0]
+# if you have a 1D array and you slice you get an array
+a[1:]
+# every time you slice you keep that dimension in the output 
+
+# with r which is 2D if you mix and match by indexing once and slicing once?
+# the result is one dimension less -> so you get a 1D array
+r[1, :1]
+r[1, :1].shape
+
+# if you slice twice in rows and cols?
+# you get a 2D array back - keep dimensions
+r[:1, :1]
+r[:1, :1].shape
+
+mult = arange(2*3*2*4).reshape(2,3,2,4)
+mult
+mult[:, 0, :, -1]
+
+a = arange(25).reshape(5,5)
+a
+a[:, 1::2]
+a[1::2, 0:3:2]
+a[-1,:]
+```
+
+Slices are a reference or view into the data of original array somewhere in memory. Memory copies are expensive so in order to be efficient numpy tries not to copy data if it does not have to. To explicitly copy data use `slice[start, stop, step].copy()`.
+
+### Fancy indexing
+What if we want different parts of the array that cannot be expressed by slicing?
+
+Here's how to get irregular portions of the array.
+
+```{python}
+# index by position
+a = arange(0,80,10)
+indices = [1,2,-3]
+y = a[indices]
+print(y)
+
+# index with boolean
+mask = array([0,1,1,0,0,1,0,0], 
+dtype = bool)
+
+# conditional mask creation
+mask2 = a < 30
+
+# fancy indexing
+y = a[mask]
+print(a)
+a[mask2]
+
+a = arange(30).reshape(5,6)
+a[a % 3 == 0] # use condition for indexing
+
+# indicies
+a[where(a % 3 == 0)]
+
+a = arange(6).reshape(2,3)
+a.sum() # sum of all eles in array
+a
+a.prod() # prod of all eles in array
+a.max()
+a.min()
+a.mean()
+a[-1,-1] = -10
+
+a
+a.argmin() # where is the min val?
+a.argmax() # where is the max val?
+
+# Hhmm but this does not exactly give me the location of the
+# min or max ... so use `unravel()`
+index = unravel_index(a.argmin(), a.shape ) # gives me a tuple of (row_index, col_index) which houses the min value
+index
+a[index]
+
+index = unravel_index(a.argmax(), a.shape )
+index
+a[index]
+
+a
+a.sum(axis = 0) # sum across columns
+a.sum(axis = 1) # sum across rows
+
+zero = zeros((5,2))
+zero
+ones = ones((2,3))
+ones
+```
+### Under the hood
+
+Watch [here](https://www.youtube.com/watch?v=ZB7BZMhfPgk)
+
+#### []
+
+- When we do `a[0]` the `[]` is called syntatic sugar, it is for a call to the method `__getitem__(0)`.
+- When we do `a[0] = 100` under the hood the method `__setitem__(index, value)` i.e. `__setitem__(0, 100)`.
+- Whenever we use `[]` in numpy, lists, pandas, dictionaries the `[]` would be translated to the appropriate `__setitem__` or `__getitem__` methods.
+
+
+### ()
+
+- When we do `np.array([1,2,3])` the `()` is again syntactic sugar for a method `__call__`
+
+### In memory - how are numpy arrays represented
+
+- In memory a numpy array is stored in a contiguous block - start here, go to here.
+- We can have multi dimensional arrays.
+- There is no multi dimensional memory though.
+- So we need some way to map between the data we have in memory and the data we have in our program. How is this achieved?
+- Numpy keeps track of metadata e.g. dtype, ndim (number dimensions), shape (tuple with #rows, # cols), a pointer to where the data is (address) and something called the strides which tracks how many bytes it needs to jump over to get to the next row, and how many bytes it needs to jump over to get to the next column.
+- e.g. Let's say we have this array:
+
+    |   |   |   |
+    |:--:|:--:|:--:|
+    |  1 |  2 |  3 |
+    |  4 |  5 |  6 |
+
+    * dtype is int64
+    * shape is (2,3)
+    * ndim is 2
+    * strides is 24, 8 - 24 bytes to go to next row, 8 bytes to get to next column item. The strides is what links the memory representation to the shape of the array in our code.
+    * When we transpose our array e.g. using `.T` we have a shape meta data flipped, and same for the strides (it is flipped).
+    * For slices - same ... shape and strides changes and potentially the data ptr.
+    * For fancy indexing - here a copy is made since sometimes it is hard to keep a consistent shape and strides metadata. Here just easier for Python to access elements and copy that into a new block of memory.
+    * For example, a reshape does not affect the data, just the array structure, so a new copy of the data is NOT made. 
+
+#### Example: Genetic Algo
+
+```{python}
+chromosome = random.randint(0,2,size=(5,)).astype('bool')
+chromosome
+fitness = mean
+fitness(chromosome)
+# rows represent each chromosome, and cols is each bit in the chromosome
+population = random.randint(0,2,size=(10,5)).astype('bool')
+population
+
+def probabilities(population):
+    fitness = mean(population, axis = 1) # mean across the rows
+    return fitness / sum(fitness)
+
+probabilities(population)
+
+random.choice(arange(0, population.shape[0]), p = probabilities(population), 
+size = 2)
+
+# select all mates
+mates = random.choice(arange(0, population.shape[0]), p = probabilities(population), 
+size = (10, 2))
+mates
+
+chromosome
+# flip a bit - index operation and then XOR it with True value
+# since XOR'ing with a True value makes a False into a True and a True
+# into a False
+chromosome[random.randint(0, population.shape[1])] ^= True
+chromosome
+
+# preserve value - XOR with False
+True ^ False, \
+False ^ False
+
+# flip value - XOR with True
+True ^ True, \
+False ^ True
+
+# One thing we may see when we wanted to do crossover in the numpy version 
+# is we can't add numpy arrays in the same way we add lists (append to list)
+# There's a reason for this - Python lists are collections so it makes sense
+# to combine collections using some concatenation operator which happens 
+# to be the addition operator
+# However Numpy ND arrays are vectors and it does not really make sense
+# to append vectors (not something we do often) - + does not mean append/concat
+# any longer it means element wise addition ... so diff approach needed
+a, b = population[0:2,]
+a, b
+
+pos = random.randint(0, a.shape[0]) # choose pos where crossover occurs
+z = empty_like(a) # create an empty ND array
+z
+z[:pos], z[pos:] = a[:pos], b[pos:] # perform assigns to perform crossover
+pos, z
+
+# In order to do simulation we need a dict representing all
+# the populations for that simulation
+# {length: [population, population, population, population]}
+
+# 1. pick the mates
+# 2. Figure out how many children each
+# 3. Breed
+#    a. crossover for each child
+#    b. random mutation
+# One interesting thing that we know that each population is the 
+# same size as the previous population
+# We're gonna use that info to do another dimensionality trick where instead
+# of having a 2D numpy array where each row represents the chromosome,
+# and each column represents a bit in that chromosome we can make it 
+# a 3D np array where that additional dimension represents each stage in our
+# simulation 
+
+
+population[:, 3:6] # fancy indexing - select single bits 3-5 in the chromosome
+
+# sort the chromosomes on a specific axis in order
+# to determine what the indices are
+# randomly determines multiple indicies where the cross-over occured
+idx = ~sort(random.randint(0,2,size=(5, population.shape[1])).astype('bool'),
+            axis = 1)
+idx
+
+# we want to figure out what are the mothers and fathers - i.e. what are the 2 sides
+# of that mating 
+a,b = population[:5,:], population[5:,:]
+a,b
+
+# Cross over using the 2 sides and the randomly determined index
+# Creating a mask with ones up to a certain point, and 0's at the end
+# and 0's up to a certain pt and 1's at the end 
+# We can negate that mask in order to flip it
+# Then take element wise all the parents on one side multiply by mask
+# plus all parents on other side multiplied by inverse of mask 
+a * idx + (b * ~idx) # cross over via matrix mult
+
+population[[1,2,3]]
+
+num_couples = 10
+mates = random.choice(arange(0, population.shape[0]), p = probabilities(population),
+                        size = (num_couples, 2))
+mates   
+
+a,b = population[mates[:,0]], population[mates[:, 1]]
+idx = ~sort(random.randint(0,2,size=(num_couples, 
+                                    population.shape[1])).astype('bool'),
+            axis = 1)
+a * idx + (b * ~idx) # cross over via matrix mult
+
+# We need to mutate these, and mutating all at once is a bit tricky
+MUTATION_RATE = .1
+
+# does not account for same bit flipped mult times
+random.choice([True, False], p = (MUTATION_RATE, 1 - MUTATION_RATE),
+                size = (5,5))
+
+x = zeros((4,))                
+x
+
+idx = array([1])
+idx
+
+x[idx] = 1
+x
+
+x = zeros((4,4))                
+x
+
+idx = array([1,2])
+idx
+
+x[idx] = 1
+x
+
+# Not quite what we want
+# We want to generate an array that represents all the random flips
+# and then actually do that flipping 
+# so we will use numpy.put 
+x = zeros((4,4)) # create 4 x 4 zero array 
+idx = array([[1,2]]) # select the first and second value in this flattened array
+put(x, idx, 1) # put a 1 into those 2 places 
+x 
+
+idx = random.randint(0,4, size = 4)
+idx
+arange(0, 4*4, step = 4)
+new_idx = arange(0, 4*4, step=4) + idx # scale up to use as offsets
+x = zeros((4,4)) # create 4 x 4 zero array 
+put(x, new_idx, 1) # put a 1 into those offsets
+x
+
+bits = zeros((5, population.shape[0],
+                population.shape[1])).astype('bool')
+bits
+idx = random.randint(0, population.shape[1], size=(5, population.shape[0]))
+idx # bits where flips will occur
+# memory offsets
+arange(0, prod(bits.shape), step=bits.shape[0]) # scaled to flattened indices
+# actual bit flipping
+new_idx = idx.flatten() + arange(0, prod(bits.shape),
+            step = bits.shape[0])
+new_idx   
+put(bits, new_idx, 1) # put 1 in bits
+
+probs = repeat(random.choice([True, False], p=(.5,.5),
+size = (bits.shape[0],
+        bits.shape[1])),
+        bits.shape[2]).reshape(bits.shape)
+probs
+
+flips = (sum(bits * probs, axis = 0) % 2).astype('bool')
+flips
+
+population ^= flips
+population
+```
+
+```{python}
+import numpy as np
+mylist = list(range(10))
+print(mylist)
+
+# Use slicing to produce the following outputs:
+# [2, 3, 4, 5]
+
+a = np.array([[1,2,3,4,5], # create a 2 x 5
+              [2,3,4,5,6]])
+a
+         
+a.sum() # sums all elements
+a.sum(axis = 0) # get's rid of that dimension - sums across rows, so I will get 5 vals
+a.sum(axis = 1) # sums across the columns, so I will get 2 numbers
+
+a
+a.ptp() # peak to peak or (max - min); here no axis specified so across all items
+
+b = np.array([[1, 2, 3, 4,5], # create a 2 x 5
+              [2, 3, 4, 5,6],
+              [-1,-2,-3,7,8]])
+b.ptp(axis = 0) # peak to peak or (max - min) across the rows, i will get 5 values
+b.ptp(axis = 1) # i will get 3 values
+
+b
+b.dtype
+b.ndim
+b.shape
+b.strides # meta data for Python to know how many jumps it needs to make to get to next row, next col
+b.T.strides # if I Transpose the strides flips as well
+b.T.shape # and so too does the shape
+
+b.reshape(5,3)
+
+# instead of saying b = b.reshape(5,3)
+# we can use shape where we explicitly say hey, make my array this shape
+b.shape = (5,3) # needs a tuple, since shape returns a tuple
+b
+
+# Flatten arrays - take multi dim array and flatten it
+c = b.flatten() # this is a copy of orig data
+c
+c.shape
+b.shape
+c[0] = 99
+c
+b # not changed since c is a copy
+# Flatten can be an expensive operation if the data is large
+
+# We can use .ravel() which is the same and will return a 
+# reference / view of the array if possible (i.e. if the memory 
+# is contiguous - next to each other row wise).
+# Otherwise a copy is made
+d = b.ravel() # same ref since memory contiguous
+d
+d[0] = 99
+d
+b # also changed
+```
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+```{python}
+
+```
+
+```{python}
+
+```
+

@@ -1,0 +1,220 @@
+---
+title: "Day 86"
+author: "Data Analytics"
+date: "2020-03-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Make toy data sets using pandas testing module
+
+```{python}
+import pandas.util.testing as tm
+import pandas as pd
+pd.__version__
+import numpy as np
+np.random.seed(444)
+tm._N, tm._K = 15, 3
+tm.makeTimeDataFrame(nper = 15, freq='M')
+tm.makeDataFrame()
+
+[i for i in dir(tm) if i.startswith('make')]
+```
+
+### Accessor Methods
+
+Accessors are properties that serves as an interface to additional methods.
+
+* pd.Series has 4 diff types of accessors:
+    - str (for strings)
+    - cat (for categorical data)
+    - dt (for datetime)
+    - sparse (for sparse data structures)
+
+```{python}
+# Accessors
+pd.Series._accessors
+
+addr = pd.Series([
+'Washington, D.C. 20003',
+'Brooklyn, NY 11211-1755',
+'Omaha, NE 68154',
+'Pittsburgh, PA 15211'
+])
+
+addr.str.upper()
+addr.str.count(r'\d')
+daterng = pd.Series(pd.date_range('2019', periods=9, freq='Q'))
+daterng
+daterng.dt.day_name()
+daterng[daterng.dt.quarter > 2]
+daterng[daterng.dt.is_year_end]
+```
+
+### Create a DatetimeIndex from Component Columns
+
+```{python}
+from itertools import product
+datecols = ['year', 'month', 'day']
+df = pd.DataFrame(list(product([2019, 2020],
+                        [1,2], # product loops thru' generates dates
+                        [1,2,3])),
+                  columns = datecols)
+df['data'] = np.random.randn(len(df))
+df
+df.index = pd.to_datetime(df[datecols]) # convert to a dt index
+df
+df.drop(datecols, axis=1, inplace=True) # drop date cols since we have the index, axis = 1 says drop the cols
+df
+df.squeeze() # convert to series
+df
+```
+
+### Use Categorical Accessors
+
+Categorical data can help your programs run faster, especially if you have lots of data. For example if you had a category in your program but it was stored as string (object) converting these to numbers would be useful.
+
+```{python}
+colors = pd.Series([
+ 'periwinkle',
+ 'mint green',
+ 'burnt orange',
+ 'periwinkle',
+ 'burnt orange',
+ 'rose',
+ 'rose',
+ 'mint green',
+ 'rose',
+ 'navy'
+])
+colors
+
+mapper ={v: k for k, v in enumerate(colors.unique())}
+mapper # can use a mapper to convert from str -> num
+as_int = colors.map(mapper)
+as_int
+
+ccolors = colors.astype('category') # better - new col
+ccolors.cat.categories # what are the categories
+ccolors.cat.codes # converted data?
+
+# ccolors.iloc[5] = 'a new color' -> Throws error
+# Why? the category 'a new color' does not exist
+
+ccolors = ccolors.cat.add_categories(['a new color'])   
+ccolors.iloc[5] = 'a new color'
+```
+
+### Understand groupby objects in pandas
+When calling groupby on some data the result is a grouped object with no representation on its own.
+
+```{python}
+cols = ['sex', 'length', 'diam', 'height', 'weight', 'rings']
+
+abalone=pd.read_csv('./abalone.data', 
+                    usecols=[0, 1, 2, 3, 4, 8], 
+                    names=cols)
+abalone['ring_quartile'] = pd.qcut(abalone['rings'],
+                            q = 4,
+                            labels = range(1,5))
+grouped = abalone.groupby('ring_quartile')       
+grouped # we just get a generic group
+
+# run at console
+# help(grouped.__iter__) # groupby objs are iterable
+
+for idx, frame in grouped:
+    print(f'Ring Quartile: {idx}')
+    print(f'-' * 16)
+    print(frame.nlargest(3, 'weight'), end = '\n\n')
+
+grouped.groups.keys()
+grouped.get_group(2).head()
+grouped['height', 'weight'].agg(['mean', 'median'])
+```
+
+```{python}
+
+# The objective is to map each group in groups to an integer. 
+# Series.map() will not recognize 'ab'—it needs the broken-out version with each character from each group mapped to an integer.
+# This is what the dict comprehension is doing
+# https://docs.python.org/3/tutorial/datastructures.html#dictionaries
+# This dictionary can be passed to s.map() to map or “translate” its values to their corresponding group indices.
+groups = dict(enumerate(('ab', 'cd', 'xyz')))
+{x: k for k, v in groups.items() for x in v}
+
+
+countries = pd.Series([ # series of some type
+ 'United States',
+ 'Canada',
+ 'Mexico',
+ 'Belgium',
+ 'United Kingdom',
+ 'Thailand'
+])
+
+groups = { # need to map to a mapping tbl like this
+# each country either belongs to an item here, or none at all
+     'North America': 
+     ('United States', 'Canada', 'Mexico', 'Greenland'),
+     'Europe': 
+     ('France', 'Germany', 'United Kingdom', 'Belgium')
+}
+ 
+from typing import Any # for type control on params
+
+def membership_map(s: pd.Series, groups: dict,
+                   fillvalue: Any=-1) -> pd.Series:
+    # like pandas cut method but for categories
+    # Reverse & expand the dictionary key-value pairs
+    groups = {x: k for k, v in groups.items() for x in v}
+    return s.map(groups).fillna(fillvalue)
+
+{x: k for k, v in groups.items() for x in v}
+
+membership_map(countries, groups, fillvalue='other')
+```
+
+### Operator Precedence
+
+[Resource](https://docs.python.org/3/reference/expressions.html#operator-precedence)
+
+#### Precendence from matched first, to matched last
+
+- Bitwise: &, |, ~ (Pandas uses these)
+- Arithmetic: <, <=, >, >=, !=, ==
+- Boolean: and, not, or
+
+
+```{python}
+4 < 3 and 5 > 4
+
+# Note: It’s not specifically Pandas-related, but 3 and 5 evaluates to 5 because of short-circuit evaluation:
+
+# “The return value of a short-circuit operator is the last evaluated argument.”
+4 < (3 and 5) > 4
+
+pd.Series([True, True, False]) & pd.Series([True, False, False])
+
+
+(pd.Series([4]) < pd.Series([3])) & (pd.Series([5]) > pd.Series([4]))
+(pd.Series([4]) < (pd.Series([3]) & pd.Series([5]))) > pd.Series([4])
+s = pd.Series(range(10))
+s
+(s % 2 == 0) & (s > 3)
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```

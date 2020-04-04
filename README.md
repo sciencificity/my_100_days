@@ -339,3 +339,29 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 
 ### Day 64 <2020-02-21>
 - Learnt about sets
+
+### Day 65 - 72 <2020-02-22 - 2020-02-29>
+- Learnt about numpy
+
+### Day 73 - 80 <2020-03-01 - 2020-03-08>
+- Learnt about pandas
+
+### Day 81 - 83 <2020-03-09 - 2020-03-11>
+- pandas tutorial
+
+### Day 84 <2020-03-12>
+- numpy arange, also as an aside numpy linspace, logspace, geomspace and meshgrid.
+
+### Day 84 <2020-03-12>
+- numpy arange, also as an aside numpy linspace, logspace, geomspace and meshgrid.
+
+### Day 85 <2020-03-13>
+- Learnt about Configuring options and settings for pandas on interpreter startup
+
+### Day 86 <2020-03-14>
+- Learnt about idiomatic pandas - for example, pd.read_clipboard()!
+
+
+
+
+

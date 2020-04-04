@@ -1,0 +1,246 @@
+---
+title: "Days 81-83"
+author: "Data Analytics"
+date: "2020-03-09 to 2020-03-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pandas Tutorial Pycon 2018
+
+### Using pandas for better (and worse) data science
+
+- ri: subset of the police information for Rhode Island
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+ri = pd.read_csv('pycon-2018-tutorial-master/police.csv')
+ted = pd.read_csv('pycon-2018-tutorial-master/ted.csv')
+ri.driver_age.plot()
+plt.show()
+ri.head() # each row represents an incident
+ri.shape
+ri.dtypes
+ri.isnull().sum() # how many nulls (NaN) in each field
+```
+
+### Q1
+
+1. Remove the column that only contains missing values - from above we know that `county_name` has missing values throughout the column. So we're going to drop it. Technically `search_type` should also be dropped since the majority of the column is missing as well.
+
+```{python}
+ri.info()
+ri.dropna(axis = 1, how = 'all', inplace=True)
+# Can also use ri.drop('county_name', axis=1, inplace=True)
+ri.isnull().sum()
+ri.info()
+ri.columns
+```
+### Q2
+
+2. Do men or women speed more often?
+
+```{python, cache = TRUE}
+ri['violation'].unique()
+(
+ ri.loc[ri['violation'] == 'Speeding', 'driver_gender'].
+  value_counts()
+)
+
+(
+ ri[ri.violation == 'Speeding']. # Alternate way
+  driver_gender.
+  value_counts()
+)
+
+(
+ ri[ri.violation == 'Speeding'].
+  driver_gender.
+  value_counts(normalize = True) # If we want %'s? Use normalize
+)
+```
+
+### Q3
+
+3. What are the violations each gender is pulled over for most of the time?
+
+```{python, cache = TRUE}
+(
+ ri[ri.driver_gender == 'M'].
+  violation.
+  value_counts(normalize = True)
+)
+
+
+(
+ ri[ri.driver_gender == 'F'].
+  violation.
+  value_counts(normalize = True)
+)
+
+```
+
+#### Aside: Using 1 line of code - groupby
+
+```{python, cache = TRUE}
+(
+ ri.groupby('driver_gender'). # for every gender
+   violation.                 # select violation
+   value_counts(normalize = True) # do value counts
+)
+
+(
+ ri.groupby('driver_gender'). # for every gender
+   violation.                 # select violation
+   value_counts(normalize = True). # do value counts
+   loc[:, 'Speeding'] # we only want to see % for speeding violation
+)
+
+(
+ ri.groupby('driver_gender'). # for every gender
+   violation.                 # select violation
+   value_counts(normalize = True). # do value counts
+   unstack() # get rows and cols!
+)
+
+```
+
+### Q4
+
+4. Does gender affect who gets searched during a stop? 
+
+When you have a boolean column you can just take a sum of the column to get a count of Trues, and you can use a mean to get the % of Trues.
+
+```{python, cache = TRUE}
+ri.search_conducted.value_counts(normalize = True) # baseline search %
+ri.search_conducted.mean() # if boolean col you can use mean
+
+(
+  ri.groupby('driver_gender').
+   search_conducted.
+   value_counts(normalize = True)
+)
+
+(
+  ri.groupby('driver_gender').
+  mean()
+)
+
+(
+  ri.groupby(['violation', 'driver_gender']).
+  search_conducted.
+  mean()
+)
+```
+
+### Q5 
+
+5. Why is search_type missing so often?
+
+```{python, cache = TRUE}
+ri.search_type.unique()
+ri.search_type.value_counts(dropna = False)
+ri.search_conducted.value_counts(dropna = False)
+
+# test the assumption that every time search_conducted is
+# null search_type is also null
+ri[ri.search_conducted == False].search_type.value_counts()
+
+# hhmm notice the empty series ...?!?
+# this is because value_counts() by default drops na values
+ri[ri.search_conducted == False].search_type.value_counts(dropna = False)
+```
+
+### Q6
+6. During a search, how often is the driver frisked?
+
+```{python, cache = TRUE}
+(
+  ri.search_type.
+    str.contains('Frisk', case = False).
+    sum()
+)
+
+(
+  ri.search_type.
+    str.contains('Frisk', case = False).
+    mean()
+)
+```
+### Q7
+
+7. Which year had the least number of stops?
+
+```{python, cache = TRUE}
+ri.stop_date.head(10)
+ri['year'] = ri.stop_date.str[0:4]
+ri.year.head()
+ri.groupby('year').stop_date.value_counts(ascending = True)
+ri.stop_date.str.slice(0, 4).value_counts() # alt
+```
+#### Pandas way
+
+```{python}
+combined = ri.stop_date.str.cat(ri.stop_time, sep = ' ')
+ri['stop_dt'] = pd.to_datetime(combined)
+ri.dtypes
+ri.stop_dt.dt.year.head()
+```
+
+### Q8
+8. How does drug activity change by time of day?
+
+```{python, cache = TRUE}
+ri['time'] = ri.stop_dt.dt.hour
+ri.drugs_related_stop.mean()
+ri.groupby('time').drugs_related_stop.value_counts()
+ri.groupby(ri.stop_dt.dt.hour).drugs_related_stop.mean().plot()
+```
+
+### Q9
+9. Do most stops occur at night?
+```{python, cache = TRUE}
+ri.groupby(ri.stop_dt.dt.hour).drugs_related_stop.sum()
+
+ri.stop_dt.dt.hour.value_counts().sort_index().plot()
+
+ri[(ri.stop_dt.dt.hour > 4) & (ri.stop_dt.dt.hour < 22)].shape
+```
+
+### Q10
+10. Find the bad data in the stop_duration col and fix it
+
+```{python, cache = TRUE}
+ri.stop_duration.unique()
+# ri.loc[((ri['stop_duration'] == '1') | 
+# (ri['stop_duration'] == '2')), ri.stop_duration] = np.nan
+
+ri.loc[(ri['stop_duration'] == '1') | 
+(ri['stop_duration'] == '2'), 'stop_duration'] = np.nan
+ri.stop_duration.unique()
+ri.stop_duration.value_counts(dropna = False)
+```
+
+```{python, cache = TRUE}
+
+```
+
+
+```{python, cache = TRUE}
+
+```
+
+
+```{python, cache = TRUE}
+
+```
+
+
+```{python, cache = TRUE}
+
+```
