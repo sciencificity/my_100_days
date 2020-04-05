@@ -1,0 +1,326 @@
+---
+title: "Day 86"
+author: "Data Analytics"
+date: "2020-03-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pandas 
+
+To run the code in this notebook, please download the 2019 survey results from [this page](https://insights.stackoverflow.com/survey).
+
+```{python}
+import pandas as pd
+import numpy as np
+df = pd.read_csv('survey_results_public.csv') # main survey results
+df.info()
+df.head()
+df.shape # attr that gives a tuple of #rows, #cols
+schema_df = pd.read_csv('survey_results_schema.csv')
+schema_df
+```
+
+### Pulling out data
+
+```{python, cache = TRUE}
+df.columns # list all columns
+df.iloc[[0,1], [2]] # integer location
+df.loc[[0,1], ['Hobbyist']]
+df.iloc[[0,1], [2,3]] # integer location
+df.loc[[0,1], ['Hobbyist', 'OpenSourcer']]
+```
+
+### Looking at the survey data
+
+```{python, cache = TRUE}
+df.loc[:,['Hobbyist']].head(10)
+df['Hobbyist'].head(10)
+df['Hobbyist'].tail()
+df['Hobbyist'].value_counts()
+```
+
+### Reset index
+
+The index is the identifier of the row. By default it will usually be the numbers 0...n unless you specify when reading it in that you want to use the first column in your file as an index (for example) [You can use any column in your file as an index if you choose to do so].
+
+- If you read in your data and then later decide you want to use a particular column as your index you can also do that. Use `df.set_index('column_name', inplace=True)`.
+- To see your index use `df.index`.
+- If you accidently set the index to something and you want to *undo* it you can by using the `df.reset_index(inplace=True)`.
+- Making an index a name does have benefits in that it makes searching quite easy. For example, when we set the survey schema to the 1st column in our csv file we get nice search capabilities. We can also sort the index to quickly find the column info we're looking for.
+
+```{python}
+df = pd.read_csv('survey_results_public.csv', index_col = 0) # main survey results
+df.index[0:3]
+df.loc[1]
+```
+
+```{python}
+schema_df = pd.read_csv('survey_results_schema.csv', index_col = 0)
+schema_df
+schema_df.loc['Hobbyist']
+schema_df.loc['MgrIdiot'] # question info cut off :(
+schema_df.loc['MgrIdiot', 'QuestionText']
+schema_df.sort_index()
+schema_df.sort_index(ascending=False)
+```
+
+### Filter data
+
+```{python, cache = TRUE}
+high_salary_filter = (df['ConvertedComp'] > 70000)
+df.loc[high_salary_filter, ['Country', 'LanguageWorkedWith', 'ConvertedComp']]
+countries = ['United States', 'India', 'United Kingdom', 'Germany', 'Canada', 'South Africa']
+filt = (df['Country'].isin(countries)) & (df['ConvertedComp'] > 70000)
+df.loc[filt, ['Country', 'LanguageWorkedWith', 'ConvertedComp']]
+filt = (df['Country'].isin(['South Africa'])) & (df['ConvertedComp'] > 70000) & (df['LanguageWorkedWith'].str.contains('Python'))
+df.loc[filt, ['LanguageWorkedWith', 'ConvertedComp']]
+filt = (df['Country'].isin(['South Africa'])) & (df['ConvertedComp'] > 70000) & (df['LanguageWorkedWith'].str.contains('R', na=False))
+df.loc[filt, ['LanguageWorkedWith', 'ConvertedComp']]
+```
+
+### Updaing Rows and Columns
+
+- Sometimes we may want to change all our column names. We can do this in tow ways:
+    * df.columns = ['col1_new_name', 
+                    'col2_new_name', 
+                    'col3_new_name',  
+                    ...,
+                    'coln_new_name']
+    * df.columns = [x.lower() for x in df.columns] # makes all column names lower case
+    * df.columns = df.columns.str.replace(' ', '_') # replace all spaces in column names with `_`
+
+- Sometimes we just want to change some of the column names. We can do this by using a dictionary and the rename method.     
+    * The key of the dictionary is the old value
+    * The value is the new value
+    * E.g. <br>
+    df.rename(columns = { <br>
+&nbsp; &nbsp; &nbsp; 'col1_old_name': 'col1_new_name',<br>
+&nbsp; &nbsp; &nbsp; 'col5_old_name': 'col5_new_name'<br>
+&nbsp; &nbsp; &nbsp;},<br>
+&nbsp; inplace=True)
+
+Let's say I wanted to rename the 'ConvertedComp' to be more descriptive. This is the salary in USD so I can rename it to 'SalaryUSD'
+```{python}
+
+df.rename(columns={'ConvertedComp': 'SalaryUSD'}, inplace=True)
+df.loc[1:3, 'CompFreq':'WorkWeekHrs']
+```
+
+Let's say I wanted to convert the `Hobbyist` Yes/No values to a boolean.
+
+```{python}
+df['Hobbyist'] = df['Hobbyist'].map({'Yes': True,
+                    'No': False})
+df['Hobbyist'].head(5)
+```
+
+### Add and Remove columns
+
+```{python}
+# Test
+
+```
+
+### Sorting
+
+```{python}
+df.sort_values(by = 'Country', inplace=True)
+df[['Country', 'MainBranch']].head(50)
+df.sort_values(by = ['Country', 'SalaryUSD'], 
+    ascending = [True, False],
+    inplace=True)
+df[['Country', 'SalaryUSD']].head(50)
+df['SalaryUSD'].nlargest(10)
+df.nlargest(10, 'SalaryUSD')[['LanguageWorkedWith',
+                            'Country']]
+```
+
+### Grouping
+
+Let's say we want the median salary?
+
+```{python}
+df['SalaryUSD'].median() # mean sometimes skews due to outliers
+df.median() # whole df
+df.describe() 
+df['SalaryUSD'].count()
+df['Hobbyist'].value_counts()
+schema_df.loc['SocialMedia']
+df['SocialMedia'].value_counts()
+df['SocialMedia'].value_counts(normalize=True)
+
+country_grp = df.groupby('Country')
+country_grp.get_group('South Africa')
+country_grp['SocialMedia'].value_counts().head(50)
+country_grp.get_group('South Africa')['SocialMedia'].value_counts()
+
+filt = (df['Country'] == 'India') # alt = filter
+df.loc[filt]['SocialMedia'].value_counts() # check out values for filter
+
+country_grp['SocialMedia'].value_counts().loc['India']
+country_grp['SocialMedia'].value_counts(normalize=True).loc['China']
+country_grp['SocialMedia'].value_counts().loc['Russian Federation']
+
+country_grp['SalaryUSD'].median()
+country_grp['SalaryUSD'].agg(['median', 'mean'])
+
+country_grp['SalaryUSD'].median().loc['Germany'] # single country median
+
+country_grp['SalaryUSD'].agg(['median', 'mean']).loc[['South Africa', 'India', 'Germany', 'Kenya', 'United States']]
+
+df['Country'].unique()
+
+```
+
+How many people in India know Python?
+
+```{python}
+filt = (df['Country'] == 'India')
+df.loc[filt]['LanguageWorkedWith'].str.contains('Python').sum()
+
+```
+
+Now what about each country?
+
+```{python}
+country_grp['LanguageWorkedWith'].apply(lambda x: x.str.contains('Python').sum())
+```
+
+Ok, how about % of respondents?
+
+```{python}
+use_python = country_grp['LanguageWorkedWith'].apply(lambda x: x.str.contains('Python').sum())
+resp = df['Country'].value_counts()
+
+python_df = pd.concat([resp, use_python],
+                axis = 1, sort = False)
+python_df   
+python_df.rename(columns = {'Country': 'NrRespondents',
+                            'LanguageWorkedWith': 'NrKnowsPython'},
+                            inplace=True)
+python_df  
+
+python_df['PctKnowsPython'] = python_df['NrKnowsPython'] / python_df['NrRespondents'] * 100.00
+
+python_df
+python_df.sort_values(by=['NrRespondents','PctKnowsPython'], ascending=[False, False], inplace=True)
+python_df.head(30)
+python_df.loc['Japan']
+```
+
+### Missing Data
+
+By default `df.dropna()` has `axis` set to rows (`'index'`) [`axis = 'index'`], `how = 'any'`.
+
+- Set `axis = 'columns'` if you want to drop columns with NaN.
+- Set `how = 'all'` if all must be missing before dropping it.
+- Set `subset = ['col1', 'col2']` for subset of columns to check
+- You can convert values in a series to another type using `astype()`. If you have missing values in a `age` column stored as object(string) for example you may want to convert these to integer. BUT if there are missing values doing this will result in an error. So to convert these (if your series has missing values) use `astype(float)` instead - this causes no errors.
+
+```{python}
+type(np.nan) # np.nan is float under the hood
+na_vals = ['NA', 'Missing']
+df = pd.read_csv('survey_results_public.csv', 
+                index_col = 0,
+                na_values = na_vals)
+df.head(10)                
+```
+
+Average number of years for respondents? Hhmm but the 'YearsCode' column is an object (string) type! So we need to first convert this and then run our mean / median otherwise we'd get an error.
+
+```{python}
+df['YearsCode'].head(10)
+df['YearsCode'].unique()
+
+df.loc[df['YearsCode'] == 'Less than 1 year','YearsCode'] = 0
+df.loc[df['YearsCode'] == 'More than 50 years','YearsCode'] = 51
+df['YearsCode'] = df['YearsCode'].astype(float).head(10)
+df['YearsCode'].median()
+df['YearsCode'].mean()
+# Alternates
+# df['YearsCode'].replace('Less than 1 year', 0, inplace=True)
+# df['YearsCode'].replace('More than 50 year', 51, inplace=True)
+```
+
+### Date times
+[Link 1](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior)
+
+[Link 2](https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#dateoffset-objects)
+
+```{python}
+df = pd.read_csv('ETH_1h.csv')
+
+
+# Alt: read in as daetes
+# d_parser = lambda x: pd.datetime.strptime(x, '%Y-%m-%d %I-%p')
+# df = pd.read_csv('ETH_1h.csv', 
+#                  parse_dates=['Date'],
+#                  date_parser = d_parser)
+
+
+df.head()
+df.loc[0, 'Date'] # get 1st val
+df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d %I-%p')
+df['Date']
+
+df.loc[:, 'Date'].dt.day_name()
+
+df['DayOfWeek'] = df.loc[:,'Date'].dt.day_name()
+df
+df['Date'].min()
+df['Date'].max()
+
+df['Date'].max() - df['Date'].min() # time delta
+
+filt = (df['Date'] >= '2020')
+df.loc[filt]
+
+filt = (df['Date'] >= '2019') & (df['Date'] < '2020')
+df.loc[filt]
+
+# explicit cast to a datetime value
+filt = (df['Date'] >= pd.to_datetime('2019-01-01')) & \
+(df['Date'] < pd.to_datetime('2020-01-01'))
+df.loc[filt]
+```
+
+### Set index to datetime
+
+```{python}
+df.set_index('Date', inplace=True)
+
+df.loc['2019'] # same as above, 1 less col since using date as index.
+
+df.loc['2020-01':'2020-02'] # slicing
+
+df.loc['2020-01':'2020-02', 'Close'].mean()
+
+# High value for the entire day
+df['2020-01-01']['High'].max()
+
+day_groups = df.groupby(df.index.day)
+day_groups['High'].apply(max)
+
+highs = df['High'].resample('D').max() # resample to days
+highs['2020-01-01'] # note same as above
+
+import matplotlib.pyplot as plt
+highs.plot()
+plt.show()
+
+
+# resample multiple cols, multiple aggregate funcs
+df.resample('W').agg({'Close': 'mean',
+                      'High': 'max',
+                      'Low': 'min',
+                      'Volume': 'sum'})
+```
+
+```{python}
+# Test
+
+```

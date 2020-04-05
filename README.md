@@ -361,7 +361,11 @@ Learnt how to emulate a switch statement in Python using a dictionary.
 ### Day 86 <2020-03-14>
 - Learnt about idiomatic pandas - for example, pd.read_clipboard()!
 
+### Day 87 <2020-03-15>
+- Learnt about sqlite3
 
+### Day 88 <2020-03-16>
+- Worked through Pandas videos from Corey Schafer on YouTube
 
 
 
