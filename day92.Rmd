@@ -1,0 +1,191 @@
+---
+title: "day92"
+author: "Data Analytics"
+date: "2020-03-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading and Writing csv files in Python
+
+### Reading files
+```{python}
+import csv
+
+with open('employee_bd.csv') as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter = ",")
+    line_count = 0
+    for row in csv_reader:
+        if line_count == 0:
+            print(f'Column names are {", ".join(row)}')
+        else:
+            print(f'''\t{row[0]} works in the {row[1]} dept, and
+            was born in {row[2]}''')
+        line_count += 1
+    print('Processed line count was, ', line_count)
+
+
+# Use DictReader to refer to columns by name
+# The DictReader looks at the first row and assumes those
+# are column names and that you can refer to items using those names
+# DictReader is a bit friendlier
+with open('employee_bd.csv') as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter = ",")
+    line_count = 0
+    for row in csv_reader:
+        if line_count == 0:
+            print(f'Column names are {", ".join(row)}')
+        print(f'''\t{row['name']} works in the {row['dept']} dept, and
+            was born in {row['birthday month']}''')
+        line_count += 1
+    print('Processed line count was, ', line_count)
+
+# Read file with a pipe delim
+with open("diff_delim.csv") as csv_file:
+    csv_reader = csv.DictReader(csv_file, delimiter = "|")
+    line_count = 0
+    for row in csv_reader:
+        if line_count == 0:
+            print(f'Column names are: {", ".join(row)}')
+        print(f'''\t{row['name']} works in {row['dept']}, lives at
+        {row['address']} and was born in {row['birthday month']}''')
+        line_count += 1
+    print('Processed line count was {line_count}')
+
+# A file with the address which contains , enclosed
+# in "": "address, .., "
+with open("diff_delim2.csv") as csv_file:
+    csv_reader = csv.DictReader(csv_file, quotechar = '"')
+    line_count = 0
+    for row in csv_reader:
+        if line_count == 0:
+            print(f'Column names are: {", ".join(row)}')
+        print(f'''\t{row['name']} works in {row['dept']},
+        and lives at {row['address']}''')
+        line_count += 1
+    print(f'Processed {line_count} lines')
+
+# Another file - this time with an escape character
+with open("esc_char.csv") as csv_file:
+    csv_reader = csv.DictReader(csv_file, escapechar = "|")
+    line_count = 0
+    for row in csv_reader:
+        if line_count == 0:
+            print(f'Column names are: {", ".join(row)}')
+        print(f'''\t{row['name']} works in {row['dept']},
+        and lives at {row['address']}''')
+        line_count += 1
+    print(f'Processed {line_count} lines')
+
+```
+
+### Writing files
+
+```{python}
+# Write a file with entries
+with open("employee_file.csv", mode='w') as employee_file:
+    employee_writer = csv.writer(employee_file,
+                        delimiter = ",", quotechar='"', 
+                        # this says only wrap in the quotechar, if
+                        # the field contains the delimiter or the
+                        # quotechar itself
+                        quoting = csv.QUOTE_MINIMAL)
+    employee_writer.writerow(['John Smith', 'Accounting"', 
+    '23 Trift Street, 1324', 'November'])
+    employee_writer.writerow(['Erica Meyers', 'IT', 
+    '45 Yak Rd, Sinclaire, 2345','March'])
+
+with open("employee_file1.csv", mode='w') as employee_file:
+    employee_writer = csv.writer(employee_file,
+                        delimiter = ",", quotechar='"', 
+                        # this says always wrap in the quotechar, i.e.
+                        # all fields must contain this
+                        quoting = csv.QUOTE_ALL)
+    employee_writer.writerow(['John Smith', 'Accounting', 
+    '23 Trift Street, 1324', 'November'])
+    employee_writer.writerow(['Erica Meyers', 'IT', 
+    '45 Yak Rd, Sinclaire, 2345','March'])
+
+# escape the , with pipe -> use QUOTE.NONE
+# There is also QUOTE.NONNUMERIC which will quote anything besides numbers
+with open("employee_file2.csv", mode='w') as employee_file:
+    employee_writer = csv.writer(employee_file,
+                        delimiter = ",", quotechar='"', 
+                        # this says always wrap in the quotechar, i.e.
+                        # all fields must contain this
+                        quoting = csv.QUOTE_NONE,
+                        escapechar="|")
+    employee_writer.writerow(['John Smith', 'Accounting', 
+    '23 Trift Street, 1324', 'November'])
+    employee_writer.writerow(['Erica Meyers', 'IT', 
+    '45 Yak Rd, Sinclaire, 2345','March'])
+
+# Write using a dictionary
+with open("employee_dict1.csv", mode='w') as employee_file:
+    fieldnames = ['name', 'dept', 'address', 'birth month']
+    employee_writer = csv.DictWriter(employee_file,
+                        fieldnames=fieldnames)
+    employee_writer.writeheader()
+    employee_writer.writerow({'name':'John Smith', 
+                              'dept':'Accounting', 
+                              'address': '23 Trift Street, 1324',
+                              'birth month': 'November'})
+    employee_writer.writerow({'name':'Erica Meyers', 
+                              'dept': 'IT',
+                              'address':'45 Yak Rd, Sinclaire, 2345',
+                              'birth month': 'March'})
+   
+       
+# Write using a dictionary
+with open("employee_dict.csv", mode='w') as employee_file:
+    fieldnames = ['name', 'dept', 'address', 'birth month']
+    employee_writer = csv.DictWriter(employee_file,
+                        fieldnames=fieldnames)
+    employee_writer.writeheader()
+    employee_writer.writerow({'name':'John Smith', 
+                              'dept':'Accounting', 
+                              'address': '"23 Trift Street, 1324"',
+                              'birth month': 'November'})
+    employee_writer.writerow({'name':'Erica Meyers', 
+                              'dept': 'IT',
+                              'address':'"45 Yak Rd, Sinclaire, 2345"',
+                              'birth month': 'March'})
+    
+```
+
+### Using pandas
+#### Read
+
+```{python}
+import pandas as pd
+hr_data = pd.read_csv("hr_data.csv")
+print(hr_data)
+
+hr_data1 = pd.read_csv("hr_data.csv", index_col = 'Name')
+print(hr_data1)
+
+hr_data2 = pd.read_csv("hr_data.csv", index_col = 'Name',
+                        parse_dates=['Hire Date'])
+print(hr_data2)
+
+```
+
+#### Write
+
+```{python}
+hr_data2.loc['Cookie Cat'] = ['2016-07-04 00:00:00', 20000.00, 0]
+hr_data2
+hr_data2.to_csv("hr_data_mod.csv")
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+

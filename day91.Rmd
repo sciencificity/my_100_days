@@ -1,0 +1,234 @@
+---
+title: "Day 91"
+author: "Data Analytics"
+date: "19/03/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Range Function
+
+
+```{python}
+# Looping
+
+names = ['John Smith', 'will Williams', 'Onika Nicuarga',
+         'austin Cepalia', 'Tyler tylerson']
+         
+def check_name(name_list):
+    '''
+    Prints True if the name is capitalised correctly
+    False if otherwise
+    '''
+    
+    for name in name_list:
+        print(not False in [word[0].isupper() for word in name.split(" ")])
+
+check_name(names)
+
+for i in range(10, -6, -2): # decreasing seq of numbers
+    print(i, end=" ") 
+    
+for i in reversed(range(5)): # decreasing seq of numbers
+    print(i, end=" ") 
+    
+print(range(6)[2:5]) # lazy eval, more efficient  
+
+print('One fish, two fish, red fish, blue fish'.count('fish'))
+
+verse = "If you can keep your head when all about you\n  Are losing theirs and blaming it on you,\nIf you can trust yourself when all men doubt you,\n  But make allowance for their doubting too;\nIf you can wait and not be tired by waiting,\n  Or being lied about, don't deal in lies,\nOr being hated, don't give way to hating,\n  And yet don't look too good, nor talk too wise:"
+print(verse, "\n")
+
+print("Verse has a length of {} characters.".format(len(verse)))
+print("The first occurence of the word 'and' occurs at the {}th index.".format(verse.find('and')))
+print("The last occurence of the word 'you' occurs at the {}th index.".format(verse.rfind('you')))
+print("The word 'you' occurs {} times in the verse.".format(verse.count('you')))
+```
+
+**Exercise 7** (`count_word_lengths_test`: 2 points). Write a function `count_word_lengths(s)` that, given a string consisting of words separated by spaces, returns a list containing the length of each word. Words will consist of lowercase alphabetic characters, and they may be separated by multiple consecutive spaces. If a string is empty or has no spaces, the function should return an empty list.
+
+For instance, in this code sample,
+
+```python
+   count_word_lengths('the quick  brown   fox jumped over     the lazy  dog') == [3, 5, 5, 3, 6, 4, 3, 4, 3]`
+```
+
+the input string consists of nine (9) words whose respective lengths are shown in the list.
+
+```{python}
+
+def count_word_lengths(s):
+    assert all([x.isalpha() or x == ' ' for x in s])
+    assert type(s) is str
+    return [len(w) for w in s.split()]
+
+count_word_lengths('the quick  brown   fox jumped over     the lazy  dog')
+```
+
+
+```{python}
+grades = [
+    # First line is descriptive header. Subsequent lines hold data
+    ['Student', 'Exam 1', 'Exam 2', 'Exam 3'],
+    ['Thorny', '100', '90', '80'],
+    ['Mac', '88', '99', '111'],
+    ['Farva', '45', '56', '67'],
+    ['Rabbit', '59', '61', '67'],
+    ['Ursula', '73', '79', '83'],
+    ['Foster', '89', '97', '101']
+]
+
+print(grades)
+
+# Write some code that computes a new list named students[:], which holds the names of the students as they from "top to bottom" in the table.
+
+print([L[0] for L in grades[1:]])
+
+print(grades[0][1:])
+
+# Create a dict mapping names to lists of grades.
+
+# One-line solution: It works, and is vaguely clever, but it is not pretty.
+#grade_lists = {L[0]: [int(g) for g in L[1:]] for L in grades[1:]}
+
+# Alternative: More verbose but (arguably) more readable
+grade_lists = {} # Empty dictionary
+for L in grades[1:]:
+    grade_lists[L[0]] = [int(g) for g in L[1:]]
+print(grade_lists)  
+
+# Alternative: More verbose but (arguably) more readable
+grade_dicts = {} # Empty
+assignments = ['Exam 1', 'Exam 2', 'Exam 3']
+for L in grades[1:]:
+    grade_dicts[L[0]] = dict(zip(assignments, [int(g) for g in L[1:]]))
+print(grade_dicts)    
+
+grades_by_assignment = {} # Empty dictionary
+print(list(enumerate(assignments)))
+for k, a in enumerate(assignments): # (0, 'Exam 1'), ...
+    grades_by_assignment[a] = [int(L[k+1]) for L in grades[1:]]
+print(grades_by_assignment)    
+```
+
+
+```{python}
+
+def is_leap(year):
+    leap = False
+    
+    # Write your logic here
+    if (year % 4 == 0) & (year % 100 == 0) & (year % 400 == 0):
+        leap = True
+    elif (year % 4 == 0) & (year % 100 != 0):
+        leap = True
+    return leap
+
+print(is_leap(2020))
+
+```
+Your task is to make a function that can take any non-negative integer as a argument and return it with its digits in descending order. Essentially, rearrange the digits to create the highest possible number.
+
+**Examples**:
+
+- Input: `21445` Output: `54421`
+
+- Input: `145263` Output: `654321`
+
+- Input: `123456789` Output: `987654321`
+
+```{python}
+def descending_order(num):
+    # Bust a move right here
+    str_num = str(num)
+    sorted_num = ''.join(sorted(str_num, reverse = True))
+    return int(sorted_num)
+
+print(descending_order(1)) 
+print(descending_order(15))    
+print(descending_order(123456789))
+print(descending_order(145263))
+
+```
+
+Given an array, find the integer that appears an odd number of times.
+
+There will always be only one integer that appears an odd number of times.
+
+```{python}
+def find_it(seq):
+    d = {}
+    for i, val in enumerate(seq):
+        if val not in d:
+            d[val] = 0
+            
+        d[val] += 1
+        
+    print(d)
+    return [key for key, val in d.items() if val % 2 != 0][0]
+
+def find_it2(seq):
+    for i in seq:
+        if seq.count(i)%2!=0:
+            return i
+            
+print(find_it([20,1,-1,2,-2,3,3,5,5,1,2,4,20,4,-1,-2,5]))    
+print(find_it([1,1,2,-2,5,2,4,4,-1,-2,5]))
+print(find_it([10]))
+
+print(find_it2([1,1,1,1,1,1,10,1,1,1,1]))    
+print(find_it2([5,4,3,2,1,5,4,3,2,10,10]))
+print(find_it2([0]))
+
+```
+
+
+```{python}
+# Test
+
+```
+
+
+```{python}
+# Test
+
+```
+
+
+```{python}
+# Test
+
+```
+
+
+```{python}
+# Test
+
+```
+
+
+```{python}
+# Test
+
+```
+
+
+```{python}
+# Test
+
+```
+
+
+```{python}
+# Test
+
+```
+
+
+```{python}
+# Test
+
+```
